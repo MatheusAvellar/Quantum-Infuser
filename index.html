@@ -62,7 +62,8 @@
                 credits: !1
             },
             temp: {
-                _t1: !1
+                _t1: !1,
+                _skip: "Skip >"
             },
             fade: {
                 foo: function(scene) {
@@ -84,7 +85,12 @@
                 r: !1
             },
             draw: {
-                speed: 50,
+                speed: {
+                    v: 50,
+                    c: function(index) {
+                        return $gc.draw.speed.v * $gc.draw.lines.tw[index].length + 50;
+                    }
+                },
                 lines: {
                     foo: function(index) {
                         if ($gc.draw.lines.wr[index] == "" || !$gc.draw.lines.wr[index]) {
@@ -92,7 +98,7 @@
                             for (let _i = 1, _l = $gc.draw.lines.tw[index].length; _i < _l; _i++) {
                                 let _t = setTimeout(function() {
                                     $gc.draw.lines.wr[index] += $gc.draw.lines.tw[index][_i];
-                                }, _i * $gc.draw.speed);
+                                }, _i * $gc.draw.speed.v);
                             }
                         }
                     },
@@ -100,20 +106,22 @@
                         "June 30th 2115",
                         "Fusion nuclear reactors are a success,",
                         "and have become the main source of energy",
-                        "throughout the world."
+                        "throughout the world. The 'QI', a.k.a. the",
+                        "'Quantum Infuser' is currently the world's",
+                        "largest energy producer."
                     ],
                     wr: []
                 },
                 foo: function() {
                     CTX.clearRect(0, 0, C.width, C.height);//#33ce75 GREEN  //e74c3c RED
-                    $gc.draw.text("Menu",     10, C.height - 10, "20px 'Meyrin'",    ($gc.s.menu ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Intro",    60, C.height - 10, "20px 'Meyrin'",   ($gc.s.intro ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Game",    120, C.height - 10, "20px 'Meyrin'",    ($gc.s.game ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Menu",     10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu    ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Intro",    60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro   ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Game",    120, C.height - 10, "20px 'Meyrin'", ($gc.s.game    ? "#ecf0f1" : "#33ce75"));
                     $gc.draw.text("Credits", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.credits ? "#ecf0f1" : "#33ce75"));
                     if ($gc.s.menu) {           // Scene is MENU
                         $gc.draw.text("Quantum Infuser", (w50 - 200), (h50 - 150), "60px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Play", (w50 - 100), (h50 + 75), "50px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Credits", (w50 - 100), (h50 + 150), "50px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Play",            (w50 - 100), (h50 +  75), "50px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Credits",         (w50 - 100), (h50 + 150), "50px 'Meyrin'", "#33ce75");
                     } else if ($gc.s.intro) {   // Scene is INTRO
                         if (!$gc.temp._t1) {
                             $gc.temp._t1 = !0;
@@ -125,12 +133,22 @@
                                         $gc.temp._t4 = !0;
                                         let _t5 = setTimeout(function() {
                                             $gc.temp._t5 = !0;
-                                        }, 2000);
-                                    }, 2300);
-                                }, 2000);
-                            }, 800);
+                                            let _t6 = setTimeout(function() {
+                                                $gc.temp._t6 = !0;
+                                                let _t7 = setTimeout(function() {
+                                                    $gc.temp._t7 = !0;
+                                                }, $gc.draw.speed.c(5) + 1050);
+                                            }, $gc.draw.speed.c(4));
+                                        }, $gc.draw.speed.c(3));
+                                    }, $gc.draw.speed.c(2));
+                                }, $gc.draw.speed.c(1));
+                            }, $gc.draw.speed.c(0) + 550);
                         }
-                        $gc.draw.text("Skip >", C.width - 100, 45, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text($gc.temp._skip, C.width - 100, 45, "30px 'Meyrin'", "#33ce75");
+                        if ($gc.draw.speed.v == 50) {
+                            $gc.draw.text("Speed up", C.width - 150, C.height - 50, "30px 'Meyrin'", "#33ce75");
+                        }
+
                         $gc.draw.lines.foo(0);
                         $gc.draw.text($gc.draw.lines.wr[0], 15, 45, "30px 'Meyrin'", "#33ce75");
                         if ($gc.temp._t2) {
@@ -146,29 +164,41 @@
                             $gc.draw.text($gc.draw.lines.wr[3], w50 - 300, 250, "30px 'Meyrin'", "#33ce75");
                         }
                         if ($gc.temp._t5) {
+                            $gc.draw.lines.foo(4);
+                            $gc.draw.text($gc.draw.lines.wr[4], w50 - 300, 300, "30px 'Meyrin'", "#33ce75");
+                        }
+                        if ($gc.temp._t6) {
+                            $gc.draw.lines.foo(5);
+                            $gc.draw.text($gc.draw.lines.wr[5], w50 - 300, 350, "30px 'Meyrin'", "#33ce75");
+                        }
+                        if ($gc.temp._t7) {
                             if (!$gc.temp.anim) {
                                 $gc.temp.anim = [
-                                    "H ->    <- H",
-                                    "H ->    <- H",
-                                    "  H      H  ",
-                                    "    H  H    ",
-                                    "   *boom*   ",
-                                    "     He/\\/    :(",
-                                    "     He  /\\/  :(",
-                                    "     He    /\\/:(",
-                                    "     He/\\/    :)",
-                                    "     He  /\\/  :)",
-                                    "     He    /\\/:)",
-                                    " H + H = He + /\\/"
+                                    "Fusion reaction:    H ->    <- H",
+                                    "Fusion reaction:    H ->    <- H",
+                                    "Fusion reaction:      H      H  ",
+                                    "Fusion reaction:        H  H    ",
+                                    "Fusion reaction:       *boom*   ",
+                                    "Fusion reaction:        He       :(",
+                                    "Fusion reaction:        He       :(",
+                                    "Fusion reaction:        He/\\/    :(",
+                                    "Fusion reaction:        He  /\\/  :(",
+                                    "Fusion reaction:        He    /\\/:(",
+                                    "Fusion reaction:        He/\\/    :)",
+                                    "Fusion reaction:        He  /\\/  :)",
+                                    "Fusion reaction:        He    /\\/:)",
+                                    "Fusion reaction:        He       :)",
+                                    "Fusion reaction:     H + H = He + /\\/"
                                 ];
                                 $gc.temp.anim_counter = 0;
                                 for (let _i = 0, _l = $gc.temp.anim.length; _i < _l; _i++) {
                                     let _t = setTimeout(function() {
+                                        $gc.temp._skip = "Next >";
                                         $gc.temp.anim_counter = ($gc.temp.anim_counter + 1 < $gc.temp.anim.length) ? $gc.temp.anim_counter + 1 : $gc.temp.anim.length - 1;
-                                    }, _i * 1000);
+                                    }, _i * 1100);
                                 }
                             }
-                            $gc.draw.text($gc.temp.anim[$gc.temp.anim_counter], w50 - 100, 350, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.temp.anim[$gc.temp.anim_counter], w50 - 300, 450, "30px 'Meyrin'", "#33ce75");
                         }
                     } else if ($gc.s.game) {    // Scene is GAME
 
@@ -228,6 +258,16 @@
                         $gc.draw.rect(C.width - 115, 35, 7, 0.5, "#33ce75");
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("game");  }
+                    } else if ($gc.m.x >= C.width - 150
+                     && $gc.m.y >= C.height - 80
+                     && $gc.m.x <= C.width
+                     && $gc.m.y <= C.height - 50
+                     && $gc.draw.speed.v == 50){
+                        $gc.draw.rect(C.width - 20, C.height - 60, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(C.width - 20, C.height - 58, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(C.width - 20, C.height - 56, 7, 0.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.draw.speed.v = 5;  }
                     } else {
                         $("#c").css({"cursor":"default"});
                     }
