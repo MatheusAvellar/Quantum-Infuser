@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="en-us">
+    <title>Quantum Infuser</title>
+    <meta name="author" content="Matheus Avellar">
+    <script src="./resources/jquery.js" type="text/javascript"></script><style type="text/css"></style><style type="text/css"></style>
+    <link href='https://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" href="./resources/favicon.png" type="image/png">
+    <link rel="icon" href="./resources/favicon.png" type="image/png">
+    <style type="text/css">
+        @font-face {
+            font-family: "Meyrin";
+            src: local("Meyrin"), url(./resources/Meyrin.woff) format("woff");
+            src: local("Meyrin"), url(./resources/Meyrin.ttf) format("truetype");
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #33ce75;
+            margin: 0;
+            overflow: hidden;
+        }
+        h1 {
+            font-family: "Meyrin", "Press Start 2P", monospace;
+            text-align: center;
+            font-size: 55px;
+        }
+        #c {
+            top: 0;
+            left: 0;
+            /*border: 1px solid #ecf0f1;*/
+            margin-top: 50px;
+            cursor: default;
+        }
+    </style>
+</head>
+<body onload="$gc.loop();">
+    <div id="main">
+        <center>
+            <canvas id="c" width="800" height="600"></canvas>
+        </center>
+    </div>
+    <script type="text/javascript">
+        "use strict";
+
+        const C = document.getElementById("c");
+        const CTX = c.getContext("2d");
+        const h50 = (C.height / 2);
+        const w50 = (C.width / 2);
+
+        var $gc = {  // Game Controller
+            m: {    // Mouse properties
+                x: 0, // X
+                y: 0, // Y
+                p: 0  // Pressed
+            },
+            s: {    // Scene
+                menu: !0,
+                intro: !1,
+                game: !1,
+                credits: !1
+            },
+            temp: {
+                _t1: !1
+            },
+            fade: {
+                foo: function(scene) {
+                    if (!$gc.fade.r) {
+                        $gc.fade.r = !0;
+                        $("#c").animate({"opacity":0}, 250);
+                        let _t_1 = setTimeout(function() {
+                            for (let _i in $gc.s) {
+                                $gc.s[_i] = !1;
+                            };
+                            $gc.s[scene] = !0;
+                            $("#c").animate({"opacity":1}, 250);
+                            let _t_2 = setTimeout(function() {
+                                $gc.fade.r = !1;
+                            }, 250);
+                        }, 275);
+                    }
+                },
+                r: !1
+            },
+            draw: {
+                speed: 50,
+                lines: {
+                    foo: function(index) {
+                        if ($gc.draw.lines.wr[index] == "" || !$gc.draw.lines.wr[index]) {
+                            $gc.draw.lines.wr[index] = $gc.draw.lines.tw[index][0];
+                            for (let _i = 1, _l = $gc.draw.lines.tw[index].length; _i < _l; _i++) {
+                                let _t = setTimeout(function() {
+                                    $gc.draw.lines.wr[index] += $gc.draw.lines.tw[index][_i];
+                                }, _i * $gc.draw.speed);
+                            }
+                        }
+                    },
+                    tw: [
+                        "June 30th 2115",
+                        "Fusion nuclear reactors are a success,",
+                        "and have become the main source of energy",
+                        "throughout the world."
+                    ],
+                    wr: []
+                },
+                foo: function() {
+                    CTX.clearRect(0, 0, C.width, C.height);//#33ce75 GREEN  //e74c3c RED
+                    $gc.draw.text("Menu",     10, C.height - 10, "20px 'Meyrin'",    ($gc.s.menu ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Intro",    60, C.height - 10, "20px 'Meyrin'",   ($gc.s.intro ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Game",    120, C.height - 10, "20px 'Meyrin'",    ($gc.s.game ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Credits", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.credits ? "#ecf0f1" : "#33ce75"));
+                    if ($gc.s.menu) {           // Scene is MENU
+                        $gc.draw.text("Quantum Infuser", (w50 - 200), (h50 - 150), "60px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Play", (w50 - 100), (h50 + 75), "50px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Credits", (w50 - 100), (h50 + 150), "50px 'Meyrin'", "#33ce75");
+                    } else if ($gc.s.intro) {   // Scene is INTRO
+                        if (!$gc.temp._t1) {
+                            $gc.temp._t1 = !0;
+                            let _t2 = setTimeout(function() {
+                                $gc.temp._t2 = !0;
+                                let _t3 = setTimeout(function() {
+                                    $gc.temp._t3 = !0;
+                                    let _t4 = setTimeout(function() {
+                                        $gc.temp._t4 = !0;
+                                        let _t5 = setTimeout(function() {
+                                            $gc.temp._t5 = !0;
+                                        }, 2000);
+                                    }, 2300);
+                                }, 2000);
+                            }, 800);
+                        }
+                        $gc.draw.text("Skip >", C.width - 100, 45, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.lines.foo(0);
+                        $gc.draw.text($gc.draw.lines.wr[0], 15, 45, "30px 'Meyrin'", "#33ce75");
+                        if ($gc.temp._t2) {
+                            $gc.draw.lines.foo(1);
+                            $gc.draw.text($gc.draw.lines.wr[1], w50 - 250, 150, "30px 'Meyrin'", "#33ce75");
+                        }
+                        if ($gc.temp._t3) {
+                            $gc.draw.lines.foo(2);
+                            $gc.draw.text($gc.draw.lines.wr[2], w50 - 300, 200, "30px 'Meyrin'", "#33ce75");
+                        }
+                        if ($gc.temp._t4) {
+                            $gc.draw.lines.foo(3);
+                            $gc.draw.text($gc.draw.lines.wr[3], w50 - 300, 250, "30px 'Meyrin'", "#33ce75");
+                        }
+                        if ($gc.temp._t5) {
+                            if (!$gc.temp.anim) {
+                                $gc.temp.anim = [
+                                    "H ->    <- H",
+                                    "H ->    <- H",
+                                    "  H      H  ",
+                                    "    H  H    ",
+                                    "   *boom*   ",
+                                    "     He/\\/    :(",
+                                    "     He  /\\/  :(",
+                                    "     He    /\\/:(",
+                                    "     He/\\/    :)",
+                                    "     He  /\\/  :)",
+                                    "     He    /\\/:)",
+                                    " H + H = He + /\\/"
+                                ];
+                                $gc.temp.anim_counter = 0;
+                                for (let _i = 0, _l = $gc.temp.anim.length; _i < _l; _i++) {
+                                    let _t = setTimeout(function() {
+                                        $gc.temp.anim_counter = ($gc.temp.anim_counter + 1 < $gc.temp.anim.length) ? $gc.temp.anim_counter + 1 : $gc.temp.anim.length - 1;
+                                    }, _i * 1000);
+                                }
+                            }
+                            $gc.draw.text($gc.temp.anim[$gc.temp.anim_counter], w50 - 100, 350, "30px 'Meyrin'", "#33ce75");
+                        }
+                    } else if ($gc.s.game) {    // Scene is GAME
+
+                    } else if ($gc.s.credits) { // Scene is CREDITS
+                        $gc.draw.text("Credits", (w50 - 145), (h50 - 150), "60px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Fabieli Helena     João Ricardo", 50, (h50 + 25), "40px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Matheus Avellar    Milena Veríssimo", 50, (h50 + 100), "40px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", "#33ce75");
+                    } else {                    // Scene is NONE
+
+                    }
+                },
+                rect: function(x, y, w, h, c) {
+                    CTX.fillStyle = (typeof c == "string") ? c : "#000";
+                    CTX.fillRect(x, y, w, h);
+                },
+                text: function(t, x, y, f, c) {
+                    CTX.fillStyle = (typeof c == "string") ? c : "#000";
+                    CTX.font = f;
+                    CTX.fillText(t, x, y);
+                }
+            },
+            update: function() {
+                $gc.draw.foo();
+                if ($gc.s.menu) {           // Scene is MENU
+                    if ($gc.m.x >= w50 - 100
+                     && $gc.m.y >= h50 + 25
+                     && $gc.m.x <= w50
+                     && $gc.m.y <= h50 + 75) {
+                        //  'Play' button
+                        $gc.draw.rect(w50 - 125, h50 + 51, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 54, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 57, 10, 1.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.fade.foo("intro");  }
+                    } else if ($gc.m.x >= w50 - 100
+                     && $gc.m.y >= h50 + 100
+                     && $gc.m.x <= w50 + 75
+                     && $gc.m.y <= h50 + 150) {
+                        //  'Credits' button
+                        $gc.draw.rect(w50 - 125, h50 + 126, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 129, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 132, 10, 1.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.fade.foo("credits");  }
+                    } else {
+                        $("#c").css({"cursor":"default"});
+                    }
+                } else if ($gc.s.intro) {   // Scene is INTRO
+                    if ($gc.m.x >= C.width - 100
+                     && $gc.m.y >= 15
+                     && $gc.m.x <= C.width - 10
+                     && $gc.m.y <= 45) {
+                        //  'Skip' button
+                        $gc.draw.rect(C.width - 115, 31, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(C.width - 115, 33, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(C.width - 115, 35, 7, 0.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.fade.foo("game");  }
+                    } else {
+                        $("#c").css({"cursor":"default"});
+                    }
+                } else if ($gc.s.game) {    // Scene is GAME
+                    $("#c").css({"cursor":"default"});
+                } else if ($gc.s.credits) { // Scene is CREDITS
+                    if ($gc.m.x >= 50
+                     && $gc.m.y >= C.height - 80
+                     && $gc.m.x <= 150
+                     && $gc.m.y <= C.height - 50) {
+                        //  'Back' button 50, C.height - 50
+                        $gc.draw.rect(30, C.height - 61, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(30, C.height - 63, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(30, C.height - 65, 7, 0.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.fade.foo("menu");  }
+                    } else {
+                        $("#c").css({"cursor":"default"});
+                    }
+                } else {                    // Scene is NONE
+                    $("#c").css({"cursor":"default"});
+                }
+            },
+            loop: function() {
+                $gc.update();
+                let _t = setTimeout($gc.loop, 30);
+            }
+        }
+
+        var _mm = function(e) {
+            $gc.m.x = (e.offsetX || e.pageX - $(e.target).offset().left);
+            $gc.m.y = (e.offsetY || e.pageY - $(e.target).offset().top);
+        }
+
+        document.addEventListener("mouseup",   function() { $gc.m.p = false; }, !1);
+        document.addEventListener("mousedown", function() { $gc.m.p = true;  }, !1);
+        document.addEventListener("mousemove", _mm, !1);
+    </script>
+</body>
+<!--
+- Year 2115
+- DEMO is a success and produces energy from nuclear fusion
+  (DEMOnstration Power Plant)
+- Uses        120 000 000 W
+- Produces  3 000 000 000 W
+- Profit    2 880 000 000 W
+
+Time passage -> 3 (?) game minute = 1 real life second
+
+-=[Start]=-
+- Requires:
+ > Hydrogen
+ > Lithium
+ > Heat
+- Produces:
+ 3B/h
+
+
+-=[Every 24h]=-
+- Requires
+ > Shut down
+ > Clean
+ > Refill
+
+[Start Generator] [Stop  Generator]
+  [Buy Lithium ]   [Buy Hydrogen]
+             (-)   (+)
+
+01 - Hire worker
+02 - Expand machine
+03 - Upgrade computers
+04 - Build factory
+05 - Conquer countries
+06 - Franchise on the Moon
+07 - Buy a sun
+08 - Harvest black hole gravity
+09 - Conquer other galaxies
+10 - Conquer alternative universes
+-->
+</html>
