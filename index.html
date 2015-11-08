@@ -63,6 +63,7 @@
                 menu: !0,
                 intro: !1,
                 game: !1,
+                settings: !1,
                 credits: !1
             },
             temp: {
@@ -178,7 +179,7 @@
                         : (_yL == 2) ? "00" + _yF
                         : (_yL == 3) ? "0" + _yF
                         : _yF;
-                    let _yC = $gc.game.time.y[_yL - 1] + "" + $gc.game.time.y[_yL];
+                    let _yC = $gc.game.time.y.toString()[_yL - 2] + "" + $gc.game.time.y.toString()[_yL - 1];
                     return (str == "d") ? _dC
                          : (str == "dd") ? _dF
                          : (str == "m") ? _mN
@@ -191,6 +192,9 @@
                          : (str == "ddmmm") ? _mF + " " + _dF
                          : (str == "d/m/y" || str == "dd/mm/yy") ? _dC + "/" + _mN + "/" + _yC
                          : (str == "dd/mm/yyyy") ? _dC + "/" + _mN + "/" + _yF
+                         : (str == "md" || str == "m/d") ? _mN + "/" + _dC
+                         : (str == "m/d/y" || str == "mm/dd/yy") ? _mN + "/" + _dC + "/" + _yC
+                         : (str == "mm/dd/yyyy") ? _mN + "/" + _dC + "/" + _yF
                          : _mF + " " + _dF + " " + _yF;
 
                 },
@@ -257,7 +261,8 @@
                     if ($gc.s.menu) {           // Scene is MENU
                         $gc.draw.text("Quantum Infuser", (w50 - 200), (h50 - 150), "60px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Play",            (w50 - 100), (h50 +  75), "50px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Credits",         (w50 - 100), (h50 + 150), "50px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Settings",        (w50 - 100), (h50 + 150), "50px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Credits",         (w50 - 100), (h50 + 225), "50px 'Meyrin'", "#33ce75");
                     } else if ($gc.s.intro) {   // Scene is INTRO
                         if (!$gc.temp._t1) {
                             $gc.temp._t1 = !0;
@@ -376,8 +381,15 @@
                             "Production: " + ($gc.game.isOn ? $gc.game.wattsPH : "0") + " GW/h" + ($gc.game.isOn ? "" : " (" + $gc.game.wattsPH + " GW/h when on)"),
                             10, 305, "30px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Time: " + $gc.game.getTime($gc.game.timeTotal)[0], 10, 355, "30px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Date 1: " + $gc.game.getDate("dd/mm/yyyy"), 10, 405, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Date 1: " + $gc.game.getDate("mm/dd/yyyy"), 10, 405, "30px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Date 2: " + $gc.game.getDate(), 10, 455, "30px 'Meyrin'", "#33ce75");
+                        /*
+                            > $gc.game.getDate() possible arguments <
+                            "d" "dd" "m" "mm" "mmm" "y" "yy" "yyyy" "dm" "d/m" "ddmm"
+                            "ddmmm" "d/m/y" "dd/mm/yy" "dd/mm/yyyy" "md" "m/d" "m/d/y" "mm/dd/yy" "mm/dd/yyyy"
+                            ""
+                        */
+
 
                         $gc.draw.text(
                             "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
@@ -395,6 +407,11 @@
                             timeTotal: 0,
                             timeIncrease: 1
                         */
+                    } else if ($gc.s.settings) {
+                        $gc.draw.text("Settings (WIP)", (w50 - 145), (h50 - 150), "60px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Time: MM/DD/YYYY      FPS: [-] 1 [+]", 50, (h50 + 25), "40px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Volume: [-] 100% [+]  Intro: On", 50, (h50 + 100), "40px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", "#33ce75");
                     } else if ($gc.s.credits) { // Scene is CREDITS
                         $gc.draw.text("Credits", (w50 - 145), (h50 - 150), "60px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Fabieli Helena     João Ricardo", 50, (h50 + 25), "40px 'Meyrin'", "#33ce75");
@@ -403,10 +420,11 @@
                     } else {                    // Scene is NONE
                         // Easter egg later on ;)
                     }
-                    $gc.draw.text("Menu",     10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu    ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Intro",    60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro   ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Game",    120, C.height - 10, "20px 'Meyrin'", ($gc.s.game    ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Credits", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.credits ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Menu",      10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu     ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Intro",     60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro    ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Game",     120, C.height - 10, "20px 'Meyrin'", ($gc.s.game     ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Settings", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.settings ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Credits",  260, C.height - 10, "20px 'Meyrin'", ($gc.s.credits  ? "#ecf0f1" : "#33ce75"));
                 },
                 rect: function(x, y, w, h, c) {
                     CTX.fillStyle = (typeof c == "string") ? c : "#000";
@@ -435,10 +453,20 @@
                      && $gc.m.y >= h50 + 100
                      && $gc.m.x <= w50 + 75
                      && $gc.m.y <= h50 + 150) {
-                        //  'Credits' button
+                        //  'Settings' button
                         $gc.draw.rect(w50 - 125, h50 + 126, 10, 1.5, "#33ce75");
                         $gc.draw.rect(w50 - 125, h50 + 129, 10, 1.5, "#33ce75");
                         $gc.draw.rect(w50 - 125, h50 + 132, 10, 1.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.fade.foo("settings");  }
+                    } else if ($gc.m.x >= w50 - 100
+                     && $gc.m.y >= h50 + 175
+                     && $gc.m.x <= w50 + 75
+                     && $gc.m.y <= h50 + 225) {
+                        //  'Credits' button
+                        $gc.draw.rect(w50 - 125, h50 + 201, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 204, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 207, 10, 1.5, "#33ce75");
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("credits");  }
                     } else {
@@ -483,6 +511,20 @@
                             $gc.temp._generatorLock = !0;
                             let _t = setTimeout(function() {  $gc.temp._generatorLock = !1;  }, 500);
                         }
+                    } else {
+                        $("#c").css({"cursor":"default"});
+                    }
+                } else if ($gc.s.settings) { // Scene is SETTINGS
+                    if ($gc.m.x >= 50
+                     && $gc.m.y >= C.height - 80
+                     && $gc.m.x <= 150
+                     && $gc.m.y <= C.height - 45) {
+                        //  'Back' button
+                        $gc.draw.rect(30, C.height - 61, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(30, C.height - 63, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(30, C.height - 65, 7, 0.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p) {  $gc.fade.foo("menu");  }
                     } else {
                         $("#c").css({"cursor":"default"});
                     }
