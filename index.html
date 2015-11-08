@@ -35,7 +35,7 @@
         }
     </style>
 </head>
-<body onload="$gc.loop();">
+<body onload="$gc.init();">
     <div id="main">
         <center>
             <canvas id="c" width="800" height="600"></canvas>
@@ -50,6 +50,10 @@
         const w50 = (C.width / 2);
 
         var $gc = {  // Game Controller
+            init: function() {
+                $gc.game.assets.reactor.src = "./resources/reactor.png";
+                $gc.loop();
+            },
             m: {    // Mouse properties
                 x: 0, // X
                 y: 0, // Y
@@ -64,6 +68,142 @@
             temp: {
                 _t1: !1,
                 _skip: "Skip >"
+            },
+            game: {
+                paused: !1,
+                assets: {
+                    reactor: new Image(),
+                },
+                heatLevel: 0,
+                hydrogenLevel: 0,
+                cleanLevel: 100,
+                lithiumLevel: 0,
+                isOn: !1,
+                wattsTotal: 0,
+                wattsPH: 1,
+                time: {
+                    r: 6,  // Rate
+                    m: 5,  // Month index
+                    mList: [
+                        ["Jan", "January",   !0],
+                        ["Feb", "February",  !1],
+                        ["Mar", "March",     !0],
+                        ["Apr", "April",     !1],
+                        ["May", "May",       !0],
+                        ["Jun", "June",      !1],
+                        ["Jul", "July",      !0],
+                        ["Aug", "August",    !0],
+                        ["Sep", "September", !1],
+                        ["Oct", "October",   !0],
+                        ["Nov", "November",  !1],
+                        ["Dec", "December",  !0]
+                    ],
+                    d: 30, // Day
+                    y: 2115 // Year
+                },
+                timeTotal: 1,
+                timeSession: 1,
+                timeOn: 1,
+                timeCtrl: function() {
+                    $gc.game.time.d =
+                        (!$gc.game.time.d
+                      || $gc.game.time.d < 1
+                      || $gc.game.time.d == Infinity) ? 1 : $gc.game.time.d;
+                    $gc.game.time.m =
+                        ((!$gc.game.time.m && $gc.game.time.m !== 0)
+                       || $gc.game.time.m < 0
+                       || $gc.game.time.m == Infinity) ? 0 : $gc.game.time.m;
+                    $gc.game.time.y =
+                        ((!$gc.game.time.y && $gc.game.time.y !== 0)
+                       || $gc.game.time.y < 0
+                       || $gc.game.time.y == Infinity
+                       || $gc.game.time.y >= 10000) ? 0 : $gc.game.time.y;
+
+                    if ($gc.game.getTime($gc.game.timeTotal)[1] && !$gc.temp._newDay) {
+                        $gc.temp._newDay = !0;
+                        $gc.game.time.d++;
+                    } else if (!$gc.game.getTime($gc.game.timeTotal)[1]) {
+                        $gc.temp._newDay = !1;
+                    }
+                    let _y = $gc.game.time.y;
+                    let _m = $gc.game.time.mList[$gc.game.time.m];
+                    let _d = $gc.game.time.d;
+                    if (_d > 31 && _m[2] || _d > 30 && !_m[2]) {
+                        if ($gc.game.time.m == 11) {
+                            $gc.game.time.y++;
+                            $gc.game.time.m = 0;
+                        } else {
+                            $gc.game.time.m++;
+                        }
+                        $gc.game.time.d = 1;
+                    } else if (_m[0] == "Feb" && _d >= 29) {
+                        let _isLeap = !1;
+                        if (_y % 4 != 0) {
+                            _isLeap = !1;
+                        } else if (_y % 100 != 0) {
+                            _isLeap = !0;
+                        } else if (_y % 400 != 0) {
+                            _isLeap = !1;
+                        } else {
+                            _isLeap = !0;
+                        }
+                        if (_isLeap && _d > 29 || !_isLeap) {
+                            $gc.game.time.m++;
+                            $gc.game.time.d = 1;
+                        }
+                        /*
+                            if (year is not exactly divisible by 4) then (it is a common year)
+                            else if (year is not exactly divisible by 100) then (it is a leap year)
+                            else if (year is not exactly divisible by 400) then (it is a common year)
+                            else (it is a leap year)
+                        */
+                    }
+                },
+                getDate: function(str) {
+                    let _mA = $gc.game.time.mList[$gc.game.time.m];
+                    let _mS = _mA[0];  // Jun
+                    let _mF = _mA[1];  // June
+                    let _mN = $gc.game.time.m + 1;
+                    _mN = _mN < 10 ? "0" + _mN : _mN;
+                    let _dC = $gc.game.time.d;        //  3
+                    _dC = _dC < 10 ? "0" + _dC : _dC; // 03
+                    let _dF = (_dC == "01") ? "1st"
+                            : (_dC == "02") ? "2nd"
+                            : (_dC == "03") ? "3rd"
+                            : _dC + "th";
+                    let _yF = $gc.game.time.y;
+                    let _yL = $gc.game.time.y.toString().length;
+                    _yF = (_yL < 1) ? "0000"
+                        : (_yL == 1) ? "000" + _yF
+                        : (_yL == 2) ? "00" + _yF
+                        : (_yL == 3) ? "0" + _yF
+                        : _yF;
+                    let _yC = $gc.game.time.y[_yL - 1] + "" + $gc.game.time.y[_yL];
+                    return (str == "d") ? _dC
+                         : (str == "dd") ? _dF
+                         : (str == "m") ? _mN
+                         : (str == "mm") ? _mS
+                         : (str == "mmm") ? _mF
+                         : (str == "y") ? _yC
+                         : (str == "yy" || str == "yyyy") ? _yF
+                         : (str == "dm" || str == "d/m") ? _dC + "/" + _mN
+                         : (str == "ddmm") ? _mS + " " + _dF
+                         : (str == "ddmmm") ? _mF + " " + _dF
+                         : (str == "d/m/y" || str == "dd/mm/yy") ? _dC + "/" + _mN + "/" + _yC
+                         : (str == "dd/mm/yyyy") ? _dC + "/" + _mN + "/" + _yF
+                         : _mF + " " + _dF + " " + _yF;
+
+                },
+                getTime: function() {
+                    let _h = ~~($gc.game.timeSession / 60);
+                    let _m = $gc.game.timeSession - (_h * 60);
+                    _h = _h < 10 ? "0" + _h : _h;
+                    _m = _m < 10 ? "0" + _m : _m;
+                    _h = (_h >= 24) ? "00" : _h;
+                    let _n = (_h == "00" && _m == "00");
+                    $gc.game.timeSession = _n ? 0 : $gc.game.timeSession;
+                    return [(_h + ":" + _m), _n];
+                }
             },
             fade: {
                 foo: function(scene) {
@@ -113,11 +253,7 @@
                     wr: []
                 },
                 foo: function() {
-                    CTX.clearRect(0, 0, C.width, C.height);//#33ce75 GREEN  //e74c3c RED
-                    $gc.draw.text("Menu",     10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu    ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Intro",    60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro   ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Game",    120, C.height - 10, "20px 'Meyrin'", ($gc.s.game    ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Credits", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.credits ? "#ecf0f1" : "#33ce75"));
+                    CTX.clearRect(0, 0, C.width, C.height); //#33ce75 GREEN  //e74c3c RED
                     if ($gc.s.menu) {           // Scene is MENU
                         $gc.draw.text("Quantum Infuser", (w50 - 200), (h50 - 150), "60px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Play",            (w50 - 100), (h50 +  75), "50px 'Meyrin'", "#33ce75");
@@ -201,15 +337,76 @@
                             $gc.draw.text($gc.temp.anim[$gc.temp.anim_counter], w50 - 300, 450, "30px 'Meyrin'", "#33ce75");
                         }
                     } else if ($gc.s.game) {    // Scene is GAME
+                        //CTX.drawImage($gc.game.assets.reactor, 0, 0);
+                        if (!$gc.game.paused) {
+                            $gc.temp._counter1 = ($gc.temp._counter1 ? $gc.temp._counter1 + 1 : 1);
+                            if ($gc.temp._counter1 % $gc.game.time.r == 0) {
+                                $gc.game.timeOn = ($gc.game.isOn) ? $gc.temp.timeOn + 1 : $gc.temp.timeOn;
+                                $gc.game.timeTotal++;
+                                $gc.game.timeSession++;
+                                $gc.temp.newHour = !0;
+                                $gc.temp._heatLock = ($gc.game.heatLevel >= 75 && !$gc.game.isOn);
+                            }
+                            if ($gc.temp._counter1 % 54 == 0) {
+                                let _h = $gc.game.isOn ? Math.round(($gc.game.heatLevel + 1) * 100) / 100 : Math.round(($gc.game.heatLevel - 1) * 100) / 100;
+                                $gc.game.heatLevel = _h > 100 ? 100 : _h < 0 ? 0 : _h;
+                                if ($gc.game.heatLevel == 100) {
+                                    $gc.game.isOn = !1;
+                                }
+                            }
+                            if ($gc.game.getTime($gc.game.timeTotal)[1]
+                             && $gc.game.isOn
+                             && $gc.temp.newHour) {
+                                $gc.temp.newHour = !1;
+                                $gc.game.wattsTotal = Math.round(($gc.game.wattsTotal + $gc.game.wattsPH) * 100) / 100
+                            }
+                        }
+                        $gc.draw.text(
+                            "Heat level: " + $gc.game.heatLevel + "%",
+                            10, 55, "30px 'Meyrin'",
+                            ($gc.game.heatLevel < 75 ? "#33ce75" : "#e74c3c"));
+                        $gc.draw.text("Clean level: " + $gc.game.cleanLevel + "%", 10, 105, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Lithium level: " + $gc.game.lithiumLevel + "%", 10, 155, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text(
+                            ($gc.game.isOn ? "Generator ONLINE" : "Generator OFFLINE"),
+                            10, 205, "30px 'Meyrin'",
+                            ($gc.game.isOn ? "#33ce75" : "#e74c3c"));
+                        $gc.draw.text("Total Watts generated: " + $gc.game.wattsTotal + " GW", 10, 255, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text(
+                            "Production: " + ($gc.game.isOn ? $gc.game.wattsPH : "0") + " GW/h" + ($gc.game.isOn ? "" : " (" + $gc.game.wattsPH + " GW/h when on)"),
+                            10, 305, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Time: " + $gc.game.getTime($gc.game.timeTotal)[0], 10, 355, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Date 1: " + $gc.game.getDate("dd/mm/yyyy"), 10, 405, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Date 2: " + $gc.game.getDate(), 10, 455, "30px 'Meyrin'", "#33ce75");
 
+                        $gc.draw.text(
+                            "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
+                            10, C.height - 50, "30px 'Meyrin'", "#33ce75");
+
+                        // WE NEED SOME EASTER EGG ABOUT 1.21 GW PLEASE
+
+                        /*
+                            hydrogenLevel: 0,
+                            cleanLevel: 100,
+                            lithiumLevel: 0,
+                            isOn: !1,
+                            wattsTotal: 0,
+                            wattsPH: 0,
+                            timeTotal: 0,
+                            timeIncrease: 1
+                        */
                     } else if ($gc.s.credits) { // Scene is CREDITS
                         $gc.draw.text("Credits", (w50 - 145), (h50 - 150), "60px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Fabieli Helena     João Ricardo", 50, (h50 + 25), "40px 'Meyrin'", "#33ce75");
                         $gc.draw.text("Matheus Avellar    Milena Veríssimo", 50, (h50 + 100), "40px 'Meyrin'", "#33ce75");
                         $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", "#33ce75");
                     } else {                    // Scene is NONE
-
+                        // Easter egg later on ;)
                     }
+                    $gc.draw.text("Menu",     10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu    ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Intro",    60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro   ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Game",    120, C.height - 10, "20px 'Meyrin'", ($gc.s.game    ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Credits", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.credits ? "#ecf0f1" : "#33ce75"));
                 },
                 rect: function(x, y, w, h, c) {
                     CTX.fillStyle = (typeof c == "string") ? c : "#000";
@@ -272,13 +469,29 @@
                         $("#c").css({"cursor":"default"});
                     }
                 } else if ($gc.s.game) {    // Scene is GAME
-                    $("#c").css({"cursor":"default"});
+                    if ($gc.m.x >= 10
+                     && $gc.m.y >= C.height - 80
+                     && $gc.m.x <= 275
+                     && $gc.m.y <= C.height - 45) {
+                        //  'Back' button
+                        $gc.draw.rect(0, C.height - 61, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(0, C.height - 63, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(0, C.height - 65, 7, 0.5, "#33ce75");
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p && !$gc.temp._generatorLock && !$gc.temp._heatLock) {
+                            $gc.game.isOn = !$gc.game.isOn;
+                            $gc.temp._generatorLock = !0;
+                            let _t = setTimeout(function() {  $gc.temp._generatorLock = !1;  }, 500);
+                        }
+                    } else {
+                        $("#c").css({"cursor":"default"});
+                    }
                 } else if ($gc.s.credits) { // Scene is CREDITS
                     if ($gc.m.x >= 50
                      && $gc.m.y >= C.height - 80
                      && $gc.m.x <= 150
-                     && $gc.m.y <= C.height - 50) {
-                        //  'Back' button 50, C.height - 50
+                     && $gc.m.y <= C.height - 45) {
+                        //  'Back' button
                         $gc.draw.rect(30, C.height - 61, 7, 0.5, "#33ce75");
                         $gc.draw.rect(30, C.height - 63, 7, 0.5, "#33ce75");
                         $gc.draw.rect(30, C.height - 65, 7, 0.5, "#33ce75");
@@ -290,6 +503,7 @@
                 } else {                    // Scene is NONE
                     $("#c").css({"cursor":"default"});
                 }
+                $gc.game.timeCtrl();
             },
             loop: function() {
                 $gc.update();
