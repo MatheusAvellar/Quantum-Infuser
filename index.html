@@ -54,6 +54,54 @@
                 $gc.game.assets.reactor.src = "./resources/reactor.png";
                 $gc.loop();
             },
+            ach: {
+                lst: [
+                    {
+                        n: "",
+                        d: "All timestamps are in the UTC HH:MM DD/MM/YYYY format"
+                    }
+                ],
+                fn: {
+                    check: function(str) {
+                        let _i = 0, _l = $gc.ach.lst.length;
+                        if (_l > 0) {
+                            for (; _i < _l; _i++) {
+                                if (str == $gc.ach.lst[_i].n) {
+                                    return !0;
+                                }
+                            }
+                        }
+                        return !1;
+                    },
+                    get: function(str) {
+                        let _i = 0, _l = $gc.ach.lst.length, _h = !1;
+                        if (_l > 0) {
+                            for (; _i < _l; _i++) {
+                                if (str == $gc.ach.lst[_i].n) {
+                                    _h = !0;
+                                }
+                            }
+                        }
+                        if (!_h) {
+                            let _d = new Date();
+                            let _h = _d.getUTCHours();
+                            let _m = _d.getUTCMinutes();
+                            let _mo = _d.getUTCMonth() + 1;
+                            let _da = _d.getUTCDate();
+                            let _ye = _d.getUTCFullYear();
+
+                            let _t = _h + ":" + _m + " " + _da + "/" + _mo + "/" + _ye;
+
+                            $gc.ach.lst.push({n: str, d: _t});
+                        }
+                    }
+                }
+            },
+            c: {
+              GREEN: "#33ce75",
+              RED: "#e74c3c",
+              WHITE: "#ecf0f1"
+          },
             m: {    // Mouse properties
                 x: 0, // X
                 y: 0, // Y
@@ -99,11 +147,11 @@
                         ["Nov", "November",  !1],
                         ["Dec", "December",  !0]
                     ],
-                    d: 30, // Day
+                    d: 30,  // Day
                     y: 2115 // Year
                 },
                 timeTotal: 1,
-                timeSession: 1,
+                timeSession: 500,
                 timeOn: 1,
                 timeCtrl: function() {
                     $gc.game.time.d =
@@ -120,10 +168,10 @@
                        || $gc.game.time.y == Infinity
                        || $gc.game.time.y >= 10000) ? 0 : $gc.game.time.y;
 
-                    if ($gc.game.getTime($gc.game.timeTotal)[1] && !$gc.temp._newDay) {
+                    if ($gc.game.getTime()[1] && !$gc.temp._newDay) {
                         $gc.temp._newDay = !0;
                         $gc.game.time.d++;
-                    } else if (!$gc.game.getTime($gc.game.timeTotal)[1]) {
+                    } else if (!$gc.game.getTime()[1]) {
                         $gc.temp._newDay = !1;
                     }
                     let _y = $gc.game.time.y;
@@ -152,12 +200,6 @@
                             $gc.game.time.m++;
                             $gc.game.time.d = 1;
                         }
-                        /*
-                            if (year is not exactly divisible by 4) then (it is a common year)
-                            else if (year is not exactly divisible by 100) then (it is a leap year)
-                            else if (year is not exactly divisible by 400) then (it is a common year)
-                            else (it is a leap year)
-                        */
                     }
                 },
                 getDate: function(str) {
@@ -199,13 +241,14 @@
 
                 },
                 getTime: function() {
-                    let _h = ~~($gc.game.timeSession / 60);
-                    let _m = $gc.game.timeSession - (_h * 60);
+                    let _time = $gc.game.timeSession;
+                    let _h = ~~(_time / 60);
+                    let _m = _time - (_h * 60);
                     _h = _h < 10 ? "0" + _h : _h;
                     _m = _m < 10 ? "0" + _m : _m;
                     _h = (_h >= 24) ? "00" : _h;
                     let _n = (_h == "00" && _m == "00");
-                    $gc.game.timeSession = _n ? 0 : $gc.game.timeSession;
+                    $gc.game.timeSession = _n ? 0 : _time;
                     return [(_h + ":" + _m), _n];
                 }
             },
@@ -257,12 +300,12 @@
                     wr: []
                 },
                 foo: function() {
-                    CTX.clearRect(0, 0, C.width, C.height); //#33ce75 GREEN  //e74c3c RED
+                    CTX.clearRect(0, 0, C.width, C.height);
                     if ($gc.s.menu) {           // Scene is MENU
-                        $gc.draw.text("Quantum Infuser", (w50 - 200), (h50 - 150), "60px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Play",            (w50 - 100), (h50 +  75), "50px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Settings",        (w50 - 100), (h50 + 150), "50px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Credits",         (w50 - 100), (h50 + 225), "50px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Quantum Infuser", (w50 - 200), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Play",            (w50 - 100), (h50 +  75), "50px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Settings",        (w50 - 100), (h50 + 150), "50px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Credits",         (w50 - 100), (h50 + 225), "50px 'Meyrin'", $gc.c.GREEN);
                     } else if ($gc.s.intro) {   // Scene is INTRO
                         if (!$gc.temp._t1) {
                             $gc.temp._t1 = !0;
@@ -285,32 +328,32 @@
                                 }, $gc.draw.speed.c(1));
                             }, $gc.draw.speed.c(0) + 550);
                         }
-                        $gc.draw.text($gc.temp._skip, C.width - 100, 45, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text($gc.temp._skip, C.width - 100, 45, "30px 'Meyrin'", $gc.c.GREEN);
                         if ($gc.draw.speed.v == 50) {
-                            $gc.draw.text("Speed up", C.width - 150, C.height - 50, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text("Speed up", C.width - 150, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
                         }
 
                         $gc.draw.lines.foo(0);
-                        $gc.draw.text($gc.draw.lines.wr[0], 15, 45, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text($gc.draw.lines.wr[0], 15, 45, "30px 'Meyrin'", $gc.c.GREEN);
                         if ($gc.temp._t2) {
                             $gc.draw.lines.foo(1);
-                            $gc.draw.text($gc.draw.lines.wr[1], w50 - 250, 150, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.draw.lines.wr[1], w50 - 250, 150, "30px 'Meyrin'", $gc.c.GREEN);
                         }
                         if ($gc.temp._t3) {
                             $gc.draw.lines.foo(2);
-                            $gc.draw.text($gc.draw.lines.wr[2], w50 - 300, 200, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.draw.lines.wr[2], w50 - 300, 200, "30px 'Meyrin'", $gc.c.GREEN);
                         }
                         if ($gc.temp._t4) {
                             $gc.draw.lines.foo(3);
-                            $gc.draw.text($gc.draw.lines.wr[3], w50 - 300, 250, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.draw.lines.wr[3], w50 - 300, 250, "30px 'Meyrin'", $gc.c.GREEN);
                         }
                         if ($gc.temp._t5) {
                             $gc.draw.lines.foo(4);
-                            $gc.draw.text($gc.draw.lines.wr[4], w50 - 300, 300, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.draw.lines.wr[4], w50 - 300, 300, "30px 'Meyrin'", $gc.c.GREEN);
                         }
                         if ($gc.temp._t6) {
                             $gc.draw.lines.foo(5);
-                            $gc.draw.text($gc.draw.lines.wr[5], w50 - 300, 350, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.draw.lines.wr[5], w50 - 300, 350, "30px 'Meyrin'", $gc.c.GREEN);
                         }
                         if ($gc.temp._t7) {
                             if (!$gc.temp.anim) {
@@ -339,7 +382,7 @@
                                     }, _i * 1100);
                                 }
                             }
-                            $gc.draw.text($gc.temp.anim[$gc.temp.anim_counter], w50 - 300, 450, "30px 'Meyrin'", "#33ce75");
+                            $gc.draw.text($gc.temp.anim[$gc.temp.anim_counter], w50 - 300, 450, "30px 'Meyrin'", $gc.c.GREEN);
                         }
                     } else if ($gc.s.game) {    // Scene is GAME
                         //CTX.drawImage($gc.game.assets.reactor, 0, 0);
@@ -359,7 +402,7 @@
                                     $gc.game.isOn = !1;
                                 }
                             }
-                            if ($gc.game.getTime($gc.game.timeTotal)[1]
+                            if ($gc.game.getTime()[1]
                              && $gc.game.isOn
                              && $gc.temp.newHour) {
                                 $gc.temp.newHour = !1;
@@ -369,20 +412,21 @@
                         $gc.draw.text(
                             "Heat level: " + $gc.game.heatLevel + "%",
                             10, 55, "30px 'Meyrin'",
-                            ($gc.game.heatLevel < 75 ? "#33ce75" : "#e74c3c"));
-                        $gc.draw.text("Clean level: " + $gc.game.cleanLevel + "%", 10, 105, "30px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Lithium level: " + $gc.game.lithiumLevel + "%", 10, 155, "30px 'Meyrin'", "#33ce75");
+                            ($gc.game.heatLevel < 75 ? $gc.c.GREEN : $gc.c.RED));
+                        $gc.draw.text("Clean level: " + $gc.game.cleanLevel + "%", 10, 105, "30px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Lithium level: " + $gc.game.lithiumLevel + "%", 10, 155, "30px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
                             ($gc.game.isOn ? "Generator ONLINE" : "Generator OFFLINE"),
                             10, 205, "30px 'Meyrin'",
-                            ($gc.game.isOn ? "#33ce75" : "#e74c3c"));
-                        $gc.draw.text("Total Watts generated: " + $gc.game.wattsTotal + " GW", 10, 255, "30px 'Meyrin'", "#33ce75");
+                            ($gc.game.isOn ? $gc.c.GREEN : $gc.c.RED));
+                        $gc.draw.text("Total Watts generated: " + $gc.game.wattsTotal + " GW", 10, 255, "30px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
                             "Production: " + ($gc.game.isOn ? $gc.game.wattsPH : "0") + " GW/h" + ($gc.game.isOn ? "" : " (" + $gc.game.wattsPH + " GW/h when on)"),
-                            10, 305, "30px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Time: " + $gc.game.getTime($gc.game.timeTotal)[0], 10, 355, "30px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Date 1: " + $gc.game.getDate("mm/dd/yyyy"), 10, 405, "30px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Date 2: " + $gc.game.getDate(), 10, 455, "30px 'Meyrin'", "#33ce75");
+                            10, 305, "30px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text(
+                            "Time: " + $gc.game.getTime(1500)[0] + " " + $gc.game.getDate(),
+                            10, 355, "30px 'Meyrin'", $gc.c.GREEN);
+                        /*$gc.draw.text("Date 1: " + $gc.game.getDate("mm/dd/yyyy"), 10, 405, "30px 'Meyrin'", $gc.c.GREEN);*/
                         /*
                             > $gc.game.getDate() possible arguments <
                             "d" "dd" "m" "mm" "mmm" "y" "yy" "yyyy" "dm" "d/m" "ddmm"
@@ -393,7 +437,7 @@
 
                         $gc.draw.text(
                             "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
-                            10, C.height - 50, "30px 'Meyrin'", "#33ce75");
+                            10, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
 
                         // WE NEED SOME EASTER EGG ABOUT 1.21 GW PLEASE
 
@@ -408,26 +452,26 @@
                             timeIncrease: 1
                         */
                     } else if ($gc.s.settings) {
-                        $gc.draw.text("Settings (WIP)", (w50 - 145), (h50 - 150), "60px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Time: MM/DD/YYYY      FPS: [-] 1 [+]", 50, (h50 + 25), "40px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Volume: [-] 100% [+]  Intro: On", 50, (h50 + 100), "40px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Settings (WIP)", (w50 - 145), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Time: MM/DD/YYYY      FPS: [-] 1 [+]", 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Volume: [-] 100% [+]  Intro: On", 50, (h50 + 100), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
                     } else if ($gc.s.credits) { // Scene is CREDITS
-                        $gc.draw.text("Credits", (w50 - 145), (h50 - 150), "60px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Fabieli Helena     João Ricardo", 50, (h50 + 25), "40px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("Matheus Avellar    Milena Veríssimo", 50, (h50 + 100), "40px 'Meyrin'", "#33ce75");
-                        $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", "#33ce75");
+                        $gc.draw.text("Credits", (w50 - 145), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Fabieli Helena     João Ricardo", 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Matheus Avellar    Milena Veríssimo", 50, (h50 + 100), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
                     } else {                    // Scene is NONE
                         // Easter egg later on ;)
                     }
-                    $gc.draw.text("Menu",      10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu     ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Intro",     60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro    ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Game",     120, C.height - 10, "20px 'Meyrin'", ($gc.s.game     ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Settings", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.settings ? "#ecf0f1" : "#33ce75"));
-                    $gc.draw.text("Credits",  260, C.height - 10, "20px 'Meyrin'", ($gc.s.credits  ? "#ecf0f1" : "#33ce75"));
+                    $gc.draw.text("Menu",      10, C.height - 10, "20px 'Meyrin'", ($gc.s.menu     ? $gc.c.WHITE : $gc.c.GREEN));
+                    $gc.draw.text("Intro",     60, C.height - 10, "20px 'Meyrin'", ($gc.s.intro    ? $gc.c.WHITE : $gc.c.GREEN));
+                    $gc.draw.text("Game",     120, C.height - 10, "20px 'Meyrin'", ($gc.s.game     ? $gc.c.WHITE : $gc.c.GREEN));
+                    $gc.draw.text("Settings", 170, C.height - 10, "20px 'Meyrin'", ($gc.s.settings ? $gc.c.WHITE : $gc.c.GREEN));
+                    $gc.draw.text("Credits",  260, C.height - 10, "20px 'Meyrin'", ($gc.s.credits  ? $gc.c.WHITE : $gc.c.GREEN));
                 },
                 rect: function(x, y, w, h, c) {
-                    CTX.fillStyle = (typeof c == "string") ? c : "#000";
+                    CTX.fillStyle = (typeof c == "string") ? c : "#00                                                                                     0";
                     CTX.fillRect(x, y, w, h);
                 },
                 text: function(t, x, y, f, c) {
@@ -444,9 +488,9 @@
                      && $gc.m.x <= w50
                      && $gc.m.y <= h50 + 75) {
                         //  'Play' button
-                        $gc.draw.rect(w50 - 125, h50 + 51, 10, 1.5, "#33ce75");
-                        $gc.draw.rect(w50 - 125, h50 + 54, 10, 1.5, "#33ce75");
-                        $gc.draw.rect(w50 - 125, h50 + 57, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 51, 10, 1.5, $gc.c.GREEN);
+                        $gc.draw.rect(w50 - 125, h50 + 54, 10, 1.5, $gc.c.GREEN);
+                        $gc.draw.rect(w50 - 125, h50 + 57, 10, 1.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("intro");  }
                     } else if ($gc.m.x >= w50 - 100
@@ -454,9 +498,9 @@
                      && $gc.m.x <= w50 + 75
                      && $gc.m.y <= h50 + 150) {
                         //  'Settings' button
-                        $gc.draw.rect(w50 - 125, h50 + 126, 10, 1.5, "#33ce75");
-                        $gc.draw.rect(w50 - 125, h50 + 129, 10, 1.5, "#33ce75");
-                        $gc.draw.rect(w50 - 125, h50 + 132, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 126, 10, 1.5, $gc.c.GREEN);
+                        $gc.draw.rect(w50 - 125, h50 + 129, 10, 1.5, $gc.c.GREEN);
+                        $gc.draw.rect(w50 - 125, h50 + 132, 10, 1.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("settings");  }
                     } else if ($gc.m.x >= w50 - 100
@@ -464,9 +508,9 @@
                      && $gc.m.x <= w50 + 75
                      && $gc.m.y <= h50 + 225) {
                         //  'Credits' button
-                        $gc.draw.rect(w50 - 125, h50 + 201, 10, 1.5, "#33ce75");
-                        $gc.draw.rect(w50 - 125, h50 + 204, 10, 1.5, "#33ce75");
-                        $gc.draw.rect(w50 - 125, h50 + 207, 10, 1.5, "#33ce75");
+                        $gc.draw.rect(w50 - 125, h50 + 201, 10, 1.5, $gc.c.GREEN);
+                        $gc.draw.rect(w50 - 125, h50 + 204, 10, 1.5, $gc.c.GREEN);
+                        $gc.draw.rect(w50 - 125, h50 + 207, 10, 1.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("credits");  }
                     } else {
@@ -478,9 +522,9 @@
                      && $gc.m.x <= C.width - 10
                      && $gc.m.y <= 45) {
                         //  'Skip' button
-                        $gc.draw.rect(C.width - 115, 31, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(C.width - 115, 33, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(C.width - 115, 35, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(C.width - 115, 31, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(C.width - 115, 33, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(C.width - 115, 35, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("game");  }
                     } else if ($gc.m.x >= C.width - 150
@@ -488,9 +532,9 @@
                      && $gc.m.x <= C.width
                      && $gc.m.y <= C.height - 50
                      && $gc.draw.speed.v == 50){
-                        $gc.draw.rect(C.width - 20, C.height - 60, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(C.width - 20, C.height - 58, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(C.width - 20, C.height - 56, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(C.width - 20, C.height - 60, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(C.width - 20, C.height - 58, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(C.width - 20, C.height - 56, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.draw.speed.v = 5;  }
                     } else {
@@ -502,9 +546,9 @@
                      && $gc.m.x <= 275
                      && $gc.m.y <= C.height - 45) {
                         //  'Back' button
-                        $gc.draw.rect(0, C.height - 61, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(0, C.height - 63, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(0, C.height - 65, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(0, C.height - 61, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(0, C.height - 63, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(0, C.height - 65, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p && !$gc.temp._generatorLock && !$gc.temp._heatLock) {
                             $gc.game.isOn = !$gc.game.isOn;
@@ -520,9 +564,9 @@
                      && $gc.m.x <= 150
                      && $gc.m.y <= C.height - 45) {
                         //  'Back' button
-                        $gc.draw.rect(30, C.height - 61, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(30, C.height - 63, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(30, C.height - 65, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(30, C.height - 61, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, C.height - 63, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, C.height - 65, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("menu");  }
                     } else {
@@ -534,9 +578,9 @@
                      && $gc.m.x <= 150
                      && $gc.m.y <= C.height - 45) {
                         //  'Back' button
-                        $gc.draw.rect(30, C.height - 61, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(30, C.height - 63, 7, 0.5, "#33ce75");
-                        $gc.draw.rect(30, C.height - 65, 7, 0.5, "#33ce75");
+                        $gc.draw.rect(30, C.height - 61, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, C.height - 63, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, C.height - 65, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("menu");  }
                     } else {
