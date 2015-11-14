@@ -105,7 +105,8 @@
             c: {
                 GREEN: "#33ce75",
                 RED: "#e74c3c",
-                WHITE: "#ecf0f1"
+                WHITE: "#ecf0f1",
+                BLACK: "#0e0e0e"
             },
             m: {    // Mouse properties
                 x: 0, // X
@@ -136,7 +137,7 @@
                 },
                 measure: [
                   /*[Prefix, Pow,   Name,      Name]*/                // ----------------------------------------------------------------------- //
-                    ["",      0, "",            "one"],               //            \           \           \           \           \          1 //
+                    ["",      0, "",            ""],                  //            \           \           \           \           \          1 //
                     ["k",     3, "kilo",        "thousand"],          //            \           \           \           \           \      1 000 //
                     ["M",     6, "mega",        "million"],           //            \           \           \           \           \  1 000 000 //
                     ["G",     9, "giga",        "billion"],           //  Starts as \ ......... \ ......... \ ......... \ ........ 1\000 000 000 //
@@ -162,22 +163,27 @@
                     total: 1000000000,
                     partial: 1,
                     symbol: "GW",
-                    display: "0 GW",
+                    display1: "0 GW",
+                    display2: "0 billion watts",
                     ph: 1000000000,
                     ctrl: function() {  /* Must do this with PH too ; - ; */
-                        if ($gc.game.measure[$gc.game.w.level]) {
+                        if ($gc.game.w.total == 1210000000) {
+                            $gc.game.w.symbol = "";
+                            $gc.game.w.partial = "GREAT SCOTT!";
+                        } else if ($gc.game.measure[$gc.game.w.level]) {
                             let _len = 0, _pow = $gc.game.w.total;
                             while (("" + Math.round(_pow)).length > 1) {
                                 _pow = _pow / 10;
                                 _len++;
                             }
-                            if (_len >= 0 && _len <= 45) {
+                            if (_len >= 0 && _len <= 45 || _len == 100) {
                                 for (let _i = 0, _l = $gc.game.measure.length; _i < _l; _i++) {
                                     let _m = $gc.game.measure[_i][1];
                                     if (_m == _len || _m + 1 == _len || _m - 1 == _len) {
                                         $gc.game.w.symbol = $gc.game.measure[_i][0] + "W";
                                         console.log($gc.game.w.total + "|" + Math.pow(10, _len) + "=" + $gc.game.w.total / Math.pow(10, _len));
                                         $gc.game.w.partial = Math.round(($gc.game.w.total / Math.pow(10, _m)) * 1000) / 1000;
+                                        $gc.game.w.display2 = ($gc.game.w.total / Math.pow(10, _m)) + " " + $gc.game.measure[_i][3] + " watts";
                                     }
                                 }
                             } else if (_len > 45) {
@@ -206,18 +212,12 @@
                     ],
                     m: 5,  // Month index
                     mList: [
-                        ["Jan", "January",   !0],
-                        ["Feb", "February",  !1],
-                        ["Mar", "March",     !0],
-                        ["Apr", "April",     !1],
-                        ["May", "May",       !0],
-                        ["Jun", "June",      !1],
-                        ["Jul", "July",      !0],
-                        ["Aug", "August",    !0],
-                        ["Sep", "September", !1],
-                        ["Oct", "October",   !0],
-                        ["Nov", "November",  !1],
-                        ["Dec", "December",  !0]
+                        ["Jan", "January",   !0], ["Feb", "February",  !1],
+                        ["Mar", "March",     !0], ["Apr", "April",     !1],
+                        ["May", "May",       !0], ["Jun", "June",      !1],
+                        ["Jul", "July",      !0], ["Aug", "August",    !0],
+                        ["Sep", "September", !1], ["Oct", "October",   !0],
+                        ["Nov", "November",  !1], ["Dec", "December",  !0]
                     ],
                     d: 30,  // Day
                     y: 2115 // Year
@@ -420,7 +420,7 @@
                             }
                         }
                     } else if ($gc.s.game) {    // Scene is GAME
-                        CTX.drawImage($gc.game.assets.reactor, 0, 0);
+                        //CTX.drawImage($gc.game.assets.reactor, 0, 0);
                         CTX.drawImage($gc.game.assets.UI, 0, 0);
                         if (!$gc.game.paused) {
                             $gc.temp._counter1 = ($gc.temp._counter1 ? $gc.temp._counter1 + 1 : 1);
@@ -467,7 +467,7 @@
                             C.width - 225, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text($gc.game.w.symbol, C.width - 85, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
-                            "Production: " + ($gc.game.isOn ? $gc.game.w.ph : "0") + " GW/h" + ($gc.game.isOn ? "" : " (" + $gc.game.w.ph + " GW/h when on)"),
+                            "Production: " + ($gc.game.isOn ? $gc.game.w.ph : "0") + " W/h" + ($gc.game.isOn ? "" : " (" + $gc.game.w.ph + " W/h when on)"),
                             10, 255, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
                             "Time: " + $gc.game.getTime()[0] + " " + $gc.game.getDate(),
@@ -480,6 +480,8 @@
                             "ddmmm" "d/m/y" "dd/mm/yy" "dd/mm/yyyy" "md" "m/d" "m/d/y" "mm/dd/yy" "mm/dd/yyyy"
                             ""
                         */
+                        $gc.draw.text("Total generated: " + $gc.game.commify(($gc.game.w.total / 1000000000), " ") + " GW", 10, C.height - 125, "20px 'Meyrin'", $gc.c.WHITE);
+                        $gc.draw.text("Total generated: " + $gc.game.w.display2, 10, C.height - 100, "20px 'Meyrin'", $gc.c.WHITE);
                         $gc.draw.text(
                             "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
                             10, C.height - 50, "20px 'Meyrin'", $gc.c.GREEN);
