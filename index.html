@@ -124,9 +124,9 @@
                 _skip: "Skip >"
             },
             game: {
-                paused: !0,
+                paused: !1,
                 commify: function(n, s) {
-                    var parts = n.toString().split(".");
+                    var parts = (n + "").split(".");
                     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, s);
                     return parts.join(".");
                 },
@@ -135,45 +135,67 @@
                     UI: new Image()
                 },
                 measure: [
-                    ["daW", 1, "decawatt" ],
-                    ["hW",  2, "hectowatt"],
-                    ["kW",  3, "kilowatt" ],
-                    ["MW",  6, "megawatt" ],
-                    ["GW",  9, "gigawatt" ],
-                    ["TW", 12, "terawatt" ],
-                    ["PW", 15, "petawatt" ],
-                    ["EW", 18, "exawatt"  ],
-                    ["ZW", 21, "zettawatt"],
-                    ["YW", 24, "yottawatt"]
+                  /*[Prefix, Pow,   Name,      Name]*/                // ----------------------------------------------------------------------- //
+                    ["",      0, "",            "one"],               //            \           \           \           \           \          1 //
+                    ["k",     3, "kilo",        "thousand"],          //            \           \           \           \           \      1 000 //
+                    ["M",     6, "mega",        "million"],           //            \           \           \           \           \  1 000 000 //
+                    ["G",     9, "giga",        "billion"],           //  Starts as \ ......... \ ......... \ ......... \ ........ 1\000 000 000 //
+                    ["T",    12, "tera",        "trillion"],          //            \           \           \           \      1 000\000 000 000 //
+                    ["P",    15, "peta",        "quadrillion"],       //            \           \           \           \  1 000 000\000 000 000 //
+                    ["E",    18, "exa",         "quintillion"],       //  Required  \ ......... \ ......... \ ........ 1\000 000 000\000 000 000 //
+                    ["Z",    21, "zetta",       "sextillion"],        //            \           \           \      1 000\000 000 000\000 000 000 //
+                    ["Y",    24, "yotta",       "septillion"],        //            \           \           \  1 000 000\000 000 000\000 000 000 //
+                    ["N",    27, "ennea",       "octillion"],         //  Required  \ ......... \ ........ 1\000 000 000\000 000 000\000 000 000 //
+                    ["D",    30, "deca",        "nonillion"],         //            \           \      1 000\000 000 000\000 000 000\000 000 000 //
+                    ["Ed",   33, "endeca",      "decillion"],         //            \           \  1 000 000\000 000 000\000 000 000\000 000 000 //
+                    ["Dd",   36, "dodeca",      "undecillion"],       //  Required  \ ........ 1\000 000 000\000 000 000\000 000 000\000 000 000 //
+                    ["Dt",   39, "decatres",    "duodecillion"],      //            \      1 000\000 000 000\000 000 000\000 000 000\000 000 000 //
+                    ["Ds",   42, "decatessera", "tredecillion"],      //            \  1 000 000\000 000 000\000 000 000\000 000 000\000 000 000 //
+                    ["Dp",   45, "decapente",   "quattuordecillion"], //  Required 1\000 000 000\000 000 000\000 000 000\000 000 000\000 000 000 //
+                    ["Go",  100, "googol",      "googol"],            // ----------------------------------------------------------------------- //
+                    /*  Thing is, they don't give names to such high values.
+                        It stops at 10**24. https://en.wikipedia.org/wiki/Power_of_10
+                        Numbers from 10**27 up to 10**45 are made up.                  */
                 ],
+                w: {
+                    level: 3,
+                    total: 1000000000,
+                    partial: 0,
+                    symbol: "GW",
+                    display: "0 GW",
+                    ph: 1,
+                    ctrl: function() { /* REDO! Was busy watching The Flash :3 */
+                        if ($gc.game.measure[$gc.game.w.level]) {
+                            let _len = ($gc.game.w.total + "").length;
+                            for (let _i = 0, _l = $gc.game.measure.length; _i < _l; _i++) {
+                                if ((_len - 1) == $gc.game.measure[_i][1]) {
+                                    let _tmpArr = $gc.game.measure[_i];
+                                    $gc.game.w.level = _i;
+                                    $gc.game.w.partial = $gc.game.w.total / (Math.pow(10, _tmpArr[1]));
+                                    $gc.game.w.symbol = _tmpArr[0] + "W";
+                                    $gc.game.w.display = $gc.game.w.partial + $gc.game.w.symbol;
+                                    break;
+                                }
+                            }
+                        } else {
+                            $gc.game.w.level = 3;
+                        }
+                    }
+                },
                 heatLevel: 0,
                 hydrogenLevel: 0,
                 cleanLevel: 100,
                 lithiumLevel: 0,
                 isOn: !1,
-                wattsTotal: 0,
-                wattsPH: 1,
                 time: {
                     r: 6,  // Rate
                     mode: "",
                     modes: [
-                        "d",
-                        "dd",
-                        "m",
-                        "mm",
-                        "mmm",
-                        "y",
-                        "yy",
-                        "yyyy",
-                        "d/m",
-                        "ddmm",
-                        "ddmmm",
-                        "d/m/y",
-                        "dd/mm/yy",
-                        "dd/mm/yyyy",
-                        "m/d",
-                        "m/d/y",
-                        "mm/dd/yyyy"
+                        "d", "dd", "m", "mm", "mmm",
+                        "y", "yy", "yyyy", "d/m",
+                        "ddmm", "ddmmm", "d/m/y",
+                        "dd/mm/yy", "dd/mm/yyyy",
+                        "m/d", "m/d/y", "mm/dd/yyyy"
                     ],
                     m: 5,  // Month index
                     mList: [
@@ -210,7 +232,6 @@
                        || $gc.game.time.y < 0
                        || $gc.game.time.y == $gc.inf
                        || $gc.game.time.y >= 10000) ? 0 : $gc.game.time.y;
-
                     if ($gc.game.getTime()[1] && !$gc.temp._newDay) {
                         $gc.temp._newDay = !0;
                         $gc.game.time.d++;
@@ -258,13 +279,13 @@
                             : (_dC == "03") ? "3rd"
                             : _dC + "th";
                     let _yF = $gc.game.time.y;
-                    let _yL = $gc.game.time.y.toString().length;
+                    let _yL = ($gc.game.time.y + "").length;
                     _yF = (_yL < 1) ? "0000"
                         : (_yL == 1) ? "000" + _yF
                         : (_yL == 2) ? "00" + _yF
                         : (_yL == 3) ? "0" + _yF
                         : _yF;
-                    let _yC = $gc.game.time.y.toString()[_yL - 2] + "" + $gc.game.time.y.toString()[_yL - 1];
+                    let _yC = ($gc.game.time.y + "")[_yL - 2] + "" + ($gc.game.time.y + "")[_yL - 1];
                     return (str == "d") ? _dC
                          : (str == "dd") ? _dF
                          : (str == "m") ? _mN
@@ -402,9 +423,6 @@
                                 $gc.game.timeSession++;
                                 $gc.temp.timeoutOn = !1;
                                 $gc.temp._heatLock = ($gc.game.heatLevel >= 75 && !$gc.game.isOn);
-                                if ($gc.game.wattsTotal.toString().length < 10) {
-
-                                }
                             }
                             if ($gc.temp._counter1 % 128 == 0) {
                                 let _h = $gc.game.isOn ? Math.round(($gc.game.heatLevel + 1) * 100) / 100 : Math.round(($gc.game.heatLevel - 1) * 100) / 100;
@@ -423,7 +441,7 @@
                             if ($gc.game.timeOn % 60 == 0
                              && !$gc.temp.timeoutOn) {
                                 $gc.temp.timeoutOn = !0;
-                                $gc.game.wattsTotal = Math.round(($gc.game.wattsTotal + $gc.game.wattsPH) * 100) / 100
+                                $gc.game.w.total = Math.round(($gc.game.w.total + $gc.game.w.ph) * 100) / 100
                             }
                         }
                         $gc.draw.text(
@@ -436,45 +454,33 @@
                             ($gc.game.heatLevel < 75 ? $gc.c.GREEN : $gc.c.RED));
                         $gc.draw.text("Clean level: " + $gc.game.cleanLevel + "%", 10, 135, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Lithium level: " + $gc.game.lithiumLevel + "%", 10, 175, "20px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text("Total generated: " + $gc.game.commify($gc.game.wattsTotal, " ") + " GW", 10, 215, "20px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Total generated: " + $gc.game.commify($gc.game.w.partial, " ") + " " + $gc.game.w.symbol, 10, 215, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
-                            $gc.game.commify($gc.game.wattsTotal, " "),
-                            ($gc.game.wattsTotal.toString().length < 9 ? C.width - 200 : C.width - 205), C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text("GW", C.width - 85, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
+                            $gc.game.commify($gc.game.w.total, " "),
+                            C.width - 225, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text($gc.game.w.symbol, C.width - 85, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
-                            "Production: " + ($gc.game.isOn ? $gc.game.wattsPH : "0") + " GW/h" + ($gc.game.isOn ? "" : " (" + $gc.game.wattsPH + " GW/h when on)"),
+                            "Production: " + ($gc.game.isOn ? $gc.game.w.ph : "0") + " GW/h" + ($gc.game.isOn ? "" : " (" + $gc.game.w.ph + " GW/h when on)"),
                             10, 255, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
                             "Time: " + $gc.game.getTime()[0] + " " + $gc.game.getDate(),
                             10, 295, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Time on: " + ($gc.game.timeOn == 1 ? "0" : $gc.game.timeOn) + "s", 10, 405, "20px 'Meyrin'", $gc.c.WHITE);
+                        $gc.draw.text("Partial: " + $gc.game.w.partial + " " + $gc.game.w.symbol, 10, 455, "20px 'Meyrin'", $gc.c.WHITE);
                         /*
                             > $gc.game.getDate() possible arguments <
                             "d" "dd" "m" "mm" "mmm" "y" "yy" "yyyy" "dm" "d/m" "ddmm"
                             "ddmmm" "d/m/y" "dd/mm/yy" "dd/mm/yyyy" "md" "m/d" "m/d/y" "mm/dd/yy" "mm/dd/yyyy"
                             ""
                         */
-
                         $gc.draw.text(
                             "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
                             10, C.height - 50, "20px 'Meyrin'", $gc.c.GREEN);
-
                         if ($gc.game.paused) {
                             $gc.draw.rect(0, 0, C.width, C.height, "rgba(14,14,14,0.8)");
                             $gc.draw.text("PAUSED", C.width - 150, 60, "50px 'Meyrin'", "#e74c3c");
                         }
                         // WE NEED SOME EASTER EGG ABOUT 1.21 GW PLEASE
-
-                        /*
-                            hydrogenLevel: 0,
-                            cleanLevel: 100,
-                            lithiumLevel: 0,
-                            isOn: !1,
-                            wattsTotal: 0,
-                            wattsPH: 0,
-                            timeTotal: 0,
-                            timeIncrease: 1
-                        */
                     } else if ($gc.s.settings) {
                         $gc.draw.text("Settings (WIP)", (w50 - 145), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Time: MM/DD/YYYY      FPS: [-] 1 [+]", 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
@@ -583,6 +589,7 @@
                         }
                     } else {
                         $("#c").css({"cursor":"default"});
+                        $gc.game.w.ctrl();
                     }
                 } else if ($gc.s.settings) { // Scene is SETTINGS
                     if ($gc.m.x >= 50
