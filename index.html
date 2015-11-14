@@ -126,7 +126,7 @@
             game: {
                 paused: !1,
                 commify: function(n, s) {
-                    var parts = (n + "").split(".");
+                    let parts = (n + "").split(".");
                     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, s);
                     return parts.join(".");
                 },
@@ -160,25 +160,32 @@
                 w: {
                     level: 3,
                     total: 1000000000,
-                    partial: 0,
+                    partial: 1,
                     symbol: "GW",
                     display: "0 GW",
-                    ph: 1,
-                    ctrl: function() { /* REDO! Was busy watching The Flash :3 */
+                    ph: 1000000000,
+                    ctrl: function() {  /* Must do this with PH too ; - ; */
                         if ($gc.game.measure[$gc.game.w.level]) {
-                            let _len = ($gc.game.w.total + "").length;
-                            for (let _i = 0, _l = $gc.game.measure.length; _i < _l; _i++) {
-                                if ((_len - 1) == $gc.game.measure[_i][1]) {
-                                    let _tmpArr = $gc.game.measure[_i];
-                                    $gc.game.w.level = _i;
-                                    $gc.game.w.partial = $gc.game.w.total / (Math.pow(10, _tmpArr[1]));
-                                    $gc.game.w.symbol = _tmpArr[0] + "W";
-                                    $gc.game.w.display = $gc.game.w.partial + $gc.game.w.symbol;
-                                    break;
+                            let _len = 0, _pow = $gc.game.w.total;
+                            while (("" + Math.round(_pow)).length > 1) {
+                                _pow = _pow / 10;
+                                _len++;
+                            }
+                            if (_len >= 0 && _len <= 45) {
+                                for (let _i = 0, _l = $gc.game.measure.length; _i < _l; _i++) {
+                                    let _m = $gc.game.measure[_i][1];
+                                    if (_m == _len || _m + 1 == _len || _m - 1 == _len) {
+                                        $gc.game.w.symbol = $gc.game.measure[_i][0] + "W";
+                                        console.log($gc.game.w.total + "|" + Math.pow(10, _len) + "=" + $gc.game.w.total / Math.pow(10, _len));
+                                        $gc.game.w.partial = Math.round(($gc.game.w.total / Math.pow(10, _m)) * 1000) / 1000;
+                                    }
                                 }
+                            } else if (_len > 45) {
+                                $gc.game.w.symbol = "";
+                                $gc.game.w.partial = "Holy crap";
                             }
                         } else {
-                            $gc.game.w.level = 3;
+                            $gc.game.w.level = 0;
                         }
                     }
                 },
@@ -456,7 +463,7 @@
                         $gc.draw.text("Lithium level: " + $gc.game.lithiumLevel + "%", 10, 175, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Total generated: " + $gc.game.commify($gc.game.w.partial, " ") + " " + $gc.game.w.symbol, 10, 215, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
-                            $gc.game.commify($gc.game.w.total, " "),
+                            $gc.game.commify($gc.game.w.partial, " "),
                             C.width - 225, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text($gc.game.w.symbol, C.width - 85, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
