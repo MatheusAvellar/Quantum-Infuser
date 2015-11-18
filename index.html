@@ -32,6 +32,7 @@
             /*border: 1px solid #ecf0f1;*/
             margin-top: 50px;
             cursor: default;
+            opacity: 0;
         }
     </style>
 </head>
@@ -56,6 +57,7 @@
                 $gc.game.assets.reactor.src = "./resources/reactor.png";
                 $gc.game.assets.UI.src = "./resources/UI.png";
                 $gc.loop();
+                $gc.fade.foo("menu");
             },
             inf: Infinity,
             ach: {
@@ -181,7 +183,6 @@
                                     let _m = $gc.game.measure[_i][1];
                                     if (_m == _len || _m + 1 == _len || _m - 1 == _len) {
                                         $gc.game.w.symbol = $gc.game.measure[_i][0] + "W";
-                                        console.log($gc.game.w.total + "|" + Math.pow(10, _len) + "=" + $gc.game.w.total / Math.pow(10, _len));
                                         $gc.game.w.partial = Math.round(($gc.game.w.total / Math.pow(10, _m)) * 1000) / 1000;
                                         $gc.game.w.display2 = ($gc.game.w.total / Math.pow(10, _m)) + " " + $gc.game.measure[_i][3] + " watts";
                                     }
@@ -200,15 +201,19 @@
                 cleanLevel: 100,
                 lithiumLevel: 0,
                 isOn: !1,
+                intro: {
+                    isOn: !0,
+                    n: "ON"
+                },
                 time: {
                     r: 6,  // Rate
-                    mode: "",
+                    mode: 0,
                     modes: [
-                        "d", "dd", "m", "mm", "mmm",
+                        "mm/dd/yyyy", "d", "dd", "m", "mm", "mmm",
                         "y", "yy", "yyyy", "d/m",
                         "ddmm", "ddmmm", "d/m/y",
                         "dd/mm/yy", "dd/mm/yyyy",
-                        "m/d", "m/d/y", "mm/dd/yyyy"
+                        "m/d", "m/d/y"
                     ],
                     m: 5,  // Month index
                     mList: [
@@ -470,8 +475,11 @@
                             "Production: " + ($gc.game.isOn ? $gc.game.w.ph : "0") + " W/h" + ($gc.game.isOn ? "" : " (" + $gc.game.w.ph + " W/h when on)"),
                             10, 255, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
-                            "Time: " + $gc.game.getTime()[0] + " " + $gc.game.getDate(),
+                            "Time: " + $gc.game.getTime()[0],
                             10, 295, "20px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text(
+                            "Date: " + $gc.game.getDate($gc.game.time.modes[$gc.game.time.mode]),
+                            10, 335, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Time on: " + ($gc.game.timeOn == 1 ? "0" : $gc.game.timeOn) + "s", 10, 405, "20px 'Meyrin'", $gc.c.WHITE);
                         $gc.draw.text("Partial: " + $gc.game.w.partial + " " + $gc.game.w.symbol, 10, 455, "20px 'Meyrin'", $gc.c.WHITE);
                         /*
@@ -492,8 +500,10 @@
                         // WE NEED SOME EASTER EGG ABOUT 1.21 GW PLEASE
                     } else if ($gc.s.settings) {
                         $gc.draw.text("Settings (WIP)", (w50 - 145), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text("Time: MM/DD/YYYY      FPS: [-] 1 [+]", 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text("Volume: [-] 100% [+]  Intro: On", 50, (h50 + 100), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text(
+                            "Time (" + (($gc.game.time.mode + 1 < 10 ? "0" + ($gc.game.time.mode + 1) : ($gc.game.time.mode + 1))) + "/" + $gc.game.time.modes.length + "): " + $gc.game.time.modes[$gc.game.time.mode].toUpperCase(), 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Intro: " + $gc.game.intro.n, 50, (h50 + 100), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Volume: Unavailable", 50, (h50 + 175), "40px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
                     } else if ($gc.s.credits) { // Scene is CREDITS
                         $gc.draw.text("Credits", (w50 - 145), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
@@ -556,7 +566,10 @@
                         $("#c").css({"cursor":"default"});
                     }
                 } else if ($gc.s.intro) {   // Scene is INTRO
-                    if ($gc.m.x >= C.width - 100
+                    if (!$gc.game.intro.isOn) {
+                        $gc.s.intro = !1;
+                        $gc.s.game = !0;
+                    } else if ($gc.m.x >= C.width - 100
                      && $gc.m.y >= 15
                      && $gc.m.x <= C.width - 10
                      && $gc.m.y <= 45) {
@@ -611,6 +624,35 @@
                         $gc.draw.rect(30, C.height - 65, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("menu");  }
+                    } else if ($gc.m.x >= 50
+                     && $gc.m.y >= h50 - 10
+                     && $gc.m.x <= 350
+                     && $gc.m.y <= h50 + 25) {
+                        //  'Time' button
+                        $gc.draw.rect(30, h50 + 6, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, h50 + 8, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, h50 + 10, 7, 0.5, $gc.c.GREEN);
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p && !$gc.temp._timeModeLock) {
+                            $gc.temp._timeModeLock = !0;
+                            $gc.game.time.mode = $gc.game.time.mode >= $gc.game.time.modes.length - 1 ? 0 : $gc.game.time.mode + 1;
+                            let _t = setTimeout(function() {  $gc.temp._timeModeLock = !1;  }, 150);
+                        }
+                    } else if ($gc.m.x >= 50
+                     && $gc.m.y >= h50 + 65
+                     && $gc.m.x <= 350
+                     && $gc.m.y <= h50 + 100) {
+                        //  'Intro Toggle' button
+                        $gc.draw.rect(30, h50 + 81, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, h50 + 83, 7, 0.5, $gc.c.GREEN);
+                        $gc.draw.rect(30, h50 + 85, 7, 0.5, $gc.c.GREEN);
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p && !$gc.temp._introToggleLock) {
+                            $gc.temp._introToggleLock = !0;
+                            $gc.game.intro.isOn = !$gc.game.intro.isOn;
+                            $gc.game.intro.n = ($gc.game.intro.isOn ? "ON" : "OFF");
+                            let _t = setTimeout(function() {  $gc.temp._introToggleLock = !1;  }, 150);
+                        }
                     } else {
                         $("#c").css({"cursor":"default"});
                     }
