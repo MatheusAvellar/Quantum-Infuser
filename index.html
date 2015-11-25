@@ -185,6 +185,100 @@
                             console.log(_ph);
                         }
                         $gc.game.w.ph = $gc.game.w.rph + _ph;
+
+                        let listMinorX = (C.width / 2) + 50;
+                        let listMajorX = C.width - 50;
+
+                        if ($gc.m.x >= listMinorX
+                         && $gc.m.y >= 180
+                         && $gc.m.x <= listMajorX
+                         && $gc.m.y <= (C.height / 2) - 100 && !$gc.game.paused) {
+                            //  'Worker' button
+                            $gc.draw.rect(listMinorX - 10, 190, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 192, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 194, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                            && $gc.m.y >= 200
+                            && $gc.m.x <= listMajorX
+                            && $gc.m.y <= (C.height / 2) - 80 && !$gc.game.paused) {
+                              //  'Upgrade' button
+                              $gc.draw.rect(listMinorX - 10, 209, 7, 0.5, $gc.c.GREEN);
+                              $gc.draw.rect(listMinorX - 10, 211, 7, 0.5, $gc.c.GREEN);
+                              $gc.draw.rect(listMinorX - 10, 213, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 220
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) - 60 && !$gc.game.paused) {
+                            //  'Expand' button
+                            $gc.draw.rect(listMinorX - 10, 228, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 230, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 232, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 240
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) - 40 && !$gc.game.paused) {
+                            //  'Factory' button
+                            $gc.draw.rect(listMinorX - 10, 248, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 250, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 252, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 260
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) - 20 && !$gc.game.paused) {
+                            //  'Country' button
+                            $gc.draw.rect(listMinorX - 10, 268, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 270, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 272, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 280
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) && !$gc.game.paused) {
+                            //  'Moon' button
+                            $gc.draw.rect(listMinorX - 10, 288, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 290, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 292, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 300
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) + 20 && !$gc.game.paused) {
+                            //  'Sun' button
+                            $gc.draw.rect(listMinorX - 10, 308, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 310, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 312, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 320
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) + 40 && !$gc.game.paused) {
+                            //  'BlackHole' button
+                            $gc.draw.rect(listMinorX - 10, 328, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 330, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 332, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 340
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) + 60 && !$gc.game.paused) {
+                            //  'Galaxy' button
+                            $gc.draw.rect(listMinorX - 10, 348, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 350, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 352, 7, 0.5, $gc.c.GREEN);
+
+                        } else if($gc.m.x >= listMinorX
+                          && $gc.m.y >= 360
+                          && $gc.m.x <= listMajorX
+                          && $gc.m.y <= (C.height / 2) + 80 && !$gc.game.paused) {
+                            //  'Universe' button
+                            $gc.draw.rect(listMinorX - 10, 368, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 370, 7, 0.5, $gc.c.GREEN);
+                            $gc.draw.rect(listMinorX - 10, 372, 7, 0.5, $gc.c.GREEN);
+                        }
                     }
                 },
                 w: {
@@ -202,7 +296,7 @@
                             $gc.game.w.partial = "GREAT SCOTT!";
                         } else if ($gc.game.measure[$gc.game.w.level]) {
                             let _len = 0, _pow = $gc.game.w.total;
-                            
+
                             while (("" + Math.round(_pow)).length > 1) {
                                 _pow = _pow / 10;
                                 _len++;
@@ -585,7 +679,6 @@
                     }
                 } else if ($gc.s.game) {    // Scene is GAME
                     $gc.game.b.ctrl();
-                    console.log("Nicole");
                     if ($gc.m.x >= 10
                      && $gc.m.y >= C.height - 80
                      && $gc.m.x <= 275
