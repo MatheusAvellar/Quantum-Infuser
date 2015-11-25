@@ -127,10 +127,13 @@
                 _skip: "Skip >"
             },
             game: {
-                paused: !1,
-                commify: function(n, s) {
-                    let parts = (n + "").split(".");
-                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, s);
+                paused: !0,
+                tutorial: !0,
+                beautify: function(number, separator) {
+                    // (1000, ",")          => "1,000"
+                    // (1234567.12345, " ") => "1 234 567.12345"
+                    let parts = (number + "").split(".");
+                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
                     return parts.join(".");
                 },
                 assets: {
@@ -155,7 +158,7 @@
                     ["Dt",   39, "decatres",    "duodecillion"],      //            \      1 000\000 000 000\000 000 000\000 000 000\000 000 000 //
                     ["Ds",   42, "decatessera", "tredecillion"],      //            \  1 000 000\000 000 000\000 000 000\000 000 000\000 000 000 //
                     ["Dp",   45, "decapente",   "quattuordecillion"], //  Required 1\000 000 000\000 000 000\000 000 000\000 000 000\000 000 000 //
-                    ["Go",  100, "googol",      "googol"],            // ----------------------------------------------------------------------- //
+                    ["Go",  100, "googol",      "googol"]             // ----------------------------------------------------------------------- //
                     /*  Thing is, they don't give names to such high values.
                         It stops at 10**24. https://en.wikipedia.org/wiki/Power_of_10
                         Numbers from 10**27 up to 10**45 are made up.                  */
@@ -209,11 +212,7 @@
                     r: 6,  // Rate
                     mode: 0,
                     modes: [
-                        "mm/dd/yyyy", "d", "dd", "m", "mm", "mmm",
-                        "y", "yy", "yyyy", "d/m",
-                        "ddmm", "ddmmm", "d/m/y",
-                        "dd/mm/yy", "dd/mm/yyyy",
-                        "m/d", "m/d/y"
+                        "extended", "mm/dd/yyyy", "dd/mm/yyyy"
                     ],
                     m: 5,  // Month index
                     mList: [
@@ -298,20 +297,7 @@
                         : (_yL == 3) ? "0" + _yF
                         : _yF;
                     let _yC = ($gc.game.time.y + "")[_yL - 2] + "" + ($gc.game.time.y + "")[_yL - 1];
-                    return (str == "d") ? _dC
-                         : (str == "dd") ? _dF
-                         : (str == "m") ? _mN
-                         : (str == "mm") ? _mS
-                         : (str == "mmm") ? _mF
-                         : (str == "y") ? _yC
-                         : (str == "yy" || str == "yyyy") ? _yF
-                         : (str == "dm" || str == "d/m") ? _dC + "/" + _mN
-                         : (str == "ddmm") ? _mS + " " + _dF
-                         : (str == "ddmmm") ? _mF + " " + _dF
-                         : (str == "d/m/y" || str == "dd/mm/yy") ? _dC + "/" + _mN + "/" + _yC
-                         : (str == "dd/mm/yyyy") ? _dC + "/" + _mN + "/" + _yF
-                         : (str == "md" || str == "m/d") ? _mN + "/" + _dC
-                         : (str == "m/d/y" || str == "mm/dd/yy") ? _mN + "/" + _dC + "/" + _yC
+                    return (str == "dd/mm/yyyy") ? _dC + "/" + _mN + "/" + _yF
                          : (str == "mm/dd/yyyy") ? _mN + "/" + _dC + "/" + _yF
                          : _mF + " " + _dF + " " + _yF;
 
@@ -349,7 +335,7 @@
             },
             draw: {
                 speed: {
-                    v: 50,
+                    v: 7,
                     c: function(index) {
                         return $gc.draw.speed.v * $gc.draw.lines.tw[index].length + 50;
                     }
@@ -372,9 +358,7 @@
                         "throughout the world. The 'QI', a.k.a. the",
                         "'Quantum Infuser' is currently the world's",
                         "largest energy producer.",
-                        "Fusion reaction:  H + H --> He + [energy]",
-                        "                           ^     ^         ^",
-                        "                           Hydrogen      Helium"
+                        "Fusion reaction:  H + H --> He + [energy]"
                     ],
                     wr: []
                 },
@@ -400,7 +384,7 @@
                                                 $gc.temp._t6 = !0;
                                                 let _t7 = setTimeout(function() {
                                                     $gc.temp._t7 = !0;
-                                                }, $gc.draw.speed.c(5) + 1050);
+                                                }, $gc.draw.speed.c(5) + 750);
                                             }, $gc.draw.speed.c(4));
                                         }, $gc.draw.speed.c(3));
                                     }, $gc.draw.speed.c(2));
@@ -408,9 +392,6 @@
                             }, $gc.draw.speed.c(0) + 550);
                         }
                         $gc.draw.text($gc.temp._skip, C.width - 100, 45, "30px 'Meyrin'", $gc.c.GREEN);
-                        if ($gc.draw.speed.v == 50 && $gc.temp._skip == "Skip >") {
-                            $gc.draw.text("Speed up", C.width - 150, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
-                        }
 
                         $gc.draw.lines.foo(0);
                         $gc.draw.text($gc.draw.lines.wr[0], 15, 45, "30px 'Meyrin'", $gc.c.GREEN);
@@ -427,7 +408,9 @@
                     } else if ($gc.s.game) {    // Scene is GAME
                         //CTX.drawImage($gc.game.assets.reactor, 0, 0);
                         CTX.drawImage($gc.game.assets.UI, 0, 0);
+                        if (!$gc.temp._ran) {  $gc.temp._ran = 0;  }
                         if (!$gc.game.paused) {
+                            $gc.game.isOn = ($gc.game.cleanLevel == 0 || $gc.game.heatLevel == 100) ? !1 : $gc.game.isOn;
                             $gc.temp._counter1 = ($gc.temp._counter1 ? $gc.temp._counter1 + 1 : 1);
                             if ($gc.temp._counter1 % $gc.game.time.r == 0) {
                                 $gc.game.timeOn = ($gc.game.isOn) ? $gc.game.timeOn + 1 : $gc.game.timeOn;
@@ -439,16 +422,10 @@
                             if ($gc.temp._counter1 % 128 == 0) {
                                 let _h = $gc.game.isOn ? Math.round(($gc.game.heatLevel + 1) * 100) / 100 : Math.round(($gc.game.heatLevel - 1) * 100) / 100;
                                 $gc.game.heatLevel = _h > 100 ? 100 : _h < 0 ? 0 : _h;
-                                if ($gc.game.heatLevel == 100) {
-                                    $gc.game.isOn = !1;
-                                }
                             }
                             if ($gc.temp._counter1 % 245 == 0) {
-                                let _c = $gc.game.isOn ? Math.round(($gc.game.cleanLevel - 1) * 100) / 100 : Math.round(($gc.game.cleanLevel + 1) * 100) / 100;
+                                let _c = $gc.game.isOn ? Math.round(($gc.game.cleanLevel - 1) * 100) / 100 : $gc.game.cleanLevel;
                                 $gc.game.cleanLevel = _c > 100 ? 100 : _c < 0 ? 0 : _c;
-                                if ($gc.game.cleanLevel == 0) {
-                                    $gc.game.isOn = !1;
-                                }
                             }
                             if ($gc.game.timeOn % 60 == 0
                              && !$gc.temp.timeoutOn) {
@@ -458,50 +435,44 @@
                         }
                         $gc.draw.text(
                             ($gc.game.isOn ? "Generator ONLINE" : "Generator OFFLINE"),
-                            10, 55, "20px 'Meyrin'",
+                            10, 55, "30px 'Meyrin'",
                             ($gc.game.isOn ? $gc.c.GREEN : $gc.c.RED));
                         $gc.draw.text(
                             "Heat level: " + $gc.game.heatLevel + "%",
                             10, 95, "20px 'Meyrin'",
                             ($gc.game.heatLevel < 75 ? $gc.c.GREEN : $gc.c.RED));
-                        $gc.draw.text("Clean level: " + $gc.game.cleanLevel + "%", 10, 135, "20px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Cleanliness: " + $gc.game.cleanLevel + "%", 10, 135, "20px 'Meyrin'", ($gc.game.cleanLevel > 10) ? $gc.c.GREEN : $gc.c.RED);
                         $gc.draw.text("Lithium level: " + $gc.game.lithiumLevel + "%", 10, 175, "20px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text("Total generated: " + $gc.game.commify($gc.game.w.partial, " ") + " " + $gc.game.w.symbol, 10, 215, "20px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Total generated: " + $gc.game.beautify($gc.game.w.partial, " ") + " " + $gc.game.w.symbol, 10, 215, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
-                            $gc.game.commify($gc.game.w.partial, " "),
+                            $gc.game.beautify($gc.game.w.partial, " "),
                             C.width - 225, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text($gc.game.w.symbol, C.width - 85, C.height - 38, "20px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text(
                             "Production: " + ($gc.game.isOn ? $gc.game.w.ph : "0") + " W/h" + ($gc.game.isOn ? "" : " (" + $gc.game.w.ph + " W/h when on)"),
                             10, 255, "20px 'Meyrin'", $gc.c.GREEN);
+                        $gc.temp._ran = $gc.game.paused ? $gc.temp._ran : ~~(Math.random() * 60);
+                        let _ran = $gc.temp._ran;
                         $gc.draw.text(
-                            "Time: " + $gc.game.getTime()[0],
-                            10, 295, "20px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text(
-                            "Date: " + $gc.game.getDate($gc.game.time.modes[$gc.game.time.mode]),
-                            10, 335, "20px 'Meyrin'", $gc.c.GREEN);
+                            $gc.game.getTime()[0] + ":" + (_ran < 10 ? "0" + _ran : _ran) + " - " + $gc.game.getDate($gc.game.time.modes[$gc.game.time.mode]),
+                            10, 375, "30px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Time on: " + ($gc.game.timeOn == 1 ? "0" : $gc.game.timeOn) + "s", 10, 405, "20px 'Meyrin'", $gc.c.WHITE);
                         $gc.draw.text("Partial: " + $gc.game.w.partial + " " + $gc.game.w.symbol, 10, 455, "20px 'Meyrin'", $gc.c.WHITE);
-                        /*
-                            > $gc.game.getDate() possible arguments <
-                            "d" "dd" "m" "mm" "mmm" "y" "yy" "yyyy" "dm" "d/m" "ddmm"
-                            "ddmmm" "d/m/y" "dd/mm/yy" "dd/mm/yyyy" "md" "m/d" "m/d/y" "mm/dd/yy" "mm/dd/yyyy"
-                            ""
-                        */
-                        $gc.draw.text("Total generated: " + $gc.game.commify(($gc.game.w.total / 1000000000), " ") + " GW", 10, C.height - 125, "20px 'Meyrin'", $gc.c.WHITE);
+                        $gc.draw.text("Total generated: " + $gc.game.beautify(($gc.game.w.total / 1000000000), " ") + " GW", 10, C.height - 125, "20px 'Meyrin'", $gc.c.WHITE);
                         $gc.draw.text("Total generated: " + $gc.game.w.display2, 10, C.height - 100, "20px 'Meyrin'", $gc.c.WHITE);
                         $gc.draw.text(
                             "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
-                            10, C.height - 50, "20px 'Meyrin'", $gc.c.GREEN);
-                        if ($gc.game.paused) {
-                            $gc.draw.rect(0, 0, C.width, C.height, "rgba(14,14,14,0.8)");
-                            $gc.draw.text("PAUSED", C.width - 150, 60, "50px 'Meyrin'", "#e74c3c");
+                            10, C.height - 50, "20px 'Meyrin'", ($gc.temp._generatorLock || $gc.temp._heatLock) ? $gc.c.RED : $gc.c.GREEN);
+                        if (!$gc.game.paused) {
+                            $gc.draw.text("PAUSE", C.width - 100, 55, "20px 'Meyrin'", $gc.c.RED);
+                        } else {
+                            $gc.draw.rect(0, 0, C.width, C.height, "rgba(14,14,14,0.6)");
+                            $gc.draw.text("UNPAUSE", C.width - 100, 55, "20px 'Meyrin'", "#e74c3c");
                         }
                         // WE NEED SOME EASTER EGG ABOUT 1.21 GW PLEASE
                     } else if ($gc.s.settings) {
                         $gc.draw.text("Settings (WIP)", (w50 - 145), (h50 - 150), "60px 'Meyrin'", $gc.c.GREEN);
-                        $gc.draw.text(
-                            "Time (" + (($gc.game.time.mode + 1 < 10 ? "0" + ($gc.game.time.mode + 1) : ($gc.game.time.mode + 1))) + "/" + $gc.game.time.modes.length + "): " + $gc.game.time.modes[$gc.game.time.mode].toUpperCase(), 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
+                        $gc.draw.text("Time: " + $gc.game.time.modes[$gc.game.time.mode].toUpperCase(), 50, (h50 + 25), "40px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Intro: " + $gc.game.intro.n, 50, (h50 + 100), "40px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("Volume: Unavailable", 50, (h50 + 175), "40px 'Meyrin'", $gc.c.GREEN);
                         $gc.draw.text("< Back", 50, C.height - 50, "30px 'Meyrin'", $gc.c.GREEN);
@@ -579,18 +550,6 @@
                         $gc.draw.rect(C.width - 115, 35, 7, 0.5, $gc.c.GREEN);
                         $("#c").css({"cursor":"pointer"});
                         if ($gc.m.p) {  $gc.fade.foo("game");  }
-                    } else if ($gc.m.x >= C.width - 150
-                     && $gc.m.y >= C.height - 80
-                     && $gc.m.x <= C.width
-                     && $gc.m.y <= C.height - 50
-                     && $gc.draw.speed.v == 50
-                     && $gc.temp._skip == "Skip >") {
-                        //  'Speed up' buton
-                        $gc.draw.rect(C.width - 20, C.height - 60, 7, 0.5, $gc.c.GREEN);
-                        $gc.draw.rect(C.width - 20, C.height - 58, 7, 0.5, $gc.c.GREEN);
-                        $gc.draw.rect(C.width - 20, C.height - 56, 7, 0.5, $gc.c.GREEN);
-                        $("#c").css({"cursor":"pointer"});
-                        if ($gc.m.p) {  $gc.draw.speed.v = 5;  }
                     } else {
                         $("#c").css({"cursor":"default"});
                     }
@@ -599,7 +558,7 @@
                      && $gc.m.y >= C.height - 80
                      && $gc.m.x <= 275
                      && $gc.m.y <= C.height - 45 && !$gc.game.paused) {
-                        //  'Back' button
+                        //  'Generator' button
                         $gc.draw.rect(0, C.height - 61, 7, 0.5, $gc.c.GREEN);
                         $gc.draw.rect(0, C.height - 63, 7, 0.5, $gc.c.GREEN);
                         $gc.draw.rect(0, C.height - 65, 7, 0.5, $gc.c.GREEN);
@@ -608,6 +567,17 @@
                             $gc.game.isOn = !$gc.game.isOn;
                             $gc.temp._generatorLock = !0;
                             let _t = setTimeout(function() {  $gc.temp._generatorLock = !1;  }, 500);
+                        }
+                    } else if ($gc.m.x >= C.width - 100
+                     && $gc.m.y >= 35
+                     && $gc.m.x <= C.width - 50
+                     && $gc.m.y <= 55) {
+                        //  'Generator' button
+                        $("#c").css({"cursor":"pointer"});
+                        if ($gc.m.p && !$gc.temp._pauseLock) {
+                            $gc.game.paused = !$gc.game.paused;
+                            $gc.temp._pauseLock = !0;
+                            let _t = setTimeout(function() {  $gc.temp._pauseLock = !1;  }, 250);
                         }
                     } else {
                         $("#c").css({"cursor":"default"});
