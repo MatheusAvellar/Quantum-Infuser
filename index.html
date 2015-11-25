@@ -163,6 +163,30 @@
                         It stops at 10**24. https://en.wikipedia.org/wiki/Power_of_10
                         Numbers from 10**27 up to 10**45 are made up.                  */
                 ],
+                b: {
+                    list: {
+                        worker:    [0, 0, ( 5 * 1e7), "Buy worker"],
+                        upgrade:   [1, 0, (25 * 1e7), "Upgrade computer"],
+                        expand:    [2, 0, (35 * 1e7), "Expand factory"],
+                        factory:   [3, 0, (75 * 1e7), "Buy new factory"],
+                        country:   [4, 0, (    25e8), "Franchise on another country"],
+                        moon:      [5, 0, (    2e10), "Franchise on the Moon"],
+                        sun:       [6, 0, (    1e12), "Harvest the Sun"],
+                        blackhole: [7, 0, (    1e13), "Harvest a black hole"],
+                        galaxy:    [8, 0, (    1e16), "Conquer new galaxies"],
+                        universe:  [9, 0, (    1e20), "Conquer alternative universe"]
+                    },
+                    ctrl: function() {
+                        let _ph = 0;
+                        console.log(_ph);
+                        for (let _i in $gc.game.b.list) {
+                            let _list = $gc.game.b.list[_i];
+                            _ph += _list[1] * _list[2];
+                            console.log(_ph);
+                        }
+                        $gc.game.w.ph = $gc.game.w.rph + _ph;
+                    }
+                },
                 w: {
                     level: 3,
                     total: 1000000000,
@@ -171,12 +195,14 @@
                     display1: "0 GW",
                     display2: "0 billion watts",
                     ph: 1000000000,
+                    rph: 1000000000,
                     ctrl: function() {  /* Must do this with PH too ; - ; */
                         if ($gc.game.w.total == 1210000000) {
                             $gc.game.w.symbol = "";
                             $gc.game.w.partial = "GREAT SCOTT!";
                         } else if ($gc.game.measure[$gc.game.w.level]) {
                             let _len = 0, _pow = $gc.game.w.total;
+                            
                             while (("" + Math.round(_pow)).length > 1) {
                                 _pow = _pow / 10;
                                 _len++;
@@ -463,6 +489,10 @@
                         $gc.draw.text(
                             "Turn generator " + ($gc.game.isOn ? "OFF" : "ON"),
                             10, C.height - 50, "20px 'Meyrin'", ($gc.temp._generatorLock || $gc.temp._heatLock) ? $gc.c.RED : $gc.c.GREEN);
+                        for (let _i in $gc.game.b.list) {
+                            let _b = $gc.game.b.list[_i];
+                            $gc.draw.text(_b[3], C.width - 350, 200 + (_b[0] * 20), "20px 'Meyrin'", $gc.c.GREEN);
+                        }
                         if (!$gc.game.paused) {
                             $gc.draw.text("PAUSE", C.width - 100, 55, "20px 'Meyrin'", $gc.c.RED);
                         } else {
@@ -554,6 +584,8 @@
                         $("#c").css({"cursor":"default"});
                     }
                 } else if ($gc.s.game) {    // Scene is GAME
+                    $gc.game.b.ctrl();
+                    console.log("Nicole");
                     if ($gc.m.x >= 10
                      && $gc.m.y >= C.height - 80
                      && $gc.m.x <= 275
